@@ -172,6 +172,7 @@ npm run preview
   - Feed lasts 4 seconds
   - Attraction radius is 30px
   - Max 5 active feed piles per player
+  - After a chicken eats feed, it ignores all feed for 2 seconds (appetite cooldown)
   - Feed select keys: `1` basic, `2` slowness
   - Basic feed is unlimited
   - Slowness feed is consumed from inventory and applies a 3-second speed debuff on consume

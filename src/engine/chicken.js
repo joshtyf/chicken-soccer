@@ -9,6 +9,7 @@ const CHICKEN_SPEED = 50;
 const KICK_RANGE = 8;
 const KICK_POWER = 2.5;
 const EAT_RANGE = 5;
+const APPETITE_COOLDOWN = 2;
 const DISTRACTION_WEIGHT = 0.7;
 const WALL_MARGIN = 20;
 const WALL_OFFSET = 12;
@@ -46,6 +47,7 @@ export class Chicken {
 
     this.speed = Number.isFinite(gameStats.speed) ? gameStats.speed : CHICKEN_SPEED;
     this.baseSpeed = this.speed;
+    this.appetiteCooldown = 0;
     this.slowTimer = 0;
     this.slowMultiplier = 1;
   }
@@ -88,9 +90,16 @@ export class Chicken {
       }
     }
 
+    if (this.appetiteCooldown > 0) {
+      this.appetiteCooldown -= dt;
+      if (this.appetiteCooldown <= 0) {
+        this.appetiteCooldown = 0;
+      }
+    }
+
     const effectiveSpeed = this.baseSpeed * this.slowMultiplier;
 
-    const nearestFeed = feedManager.getClosestFeed(this);
+    const nearestFeed = this.appetiteCooldown > 0 ? null : feedManager.getClosestFeed(this);
 
     if (this.state === STATE_CELEBRATE) {
       this.vx = Math.sin(this.animTimer * 15) * 20;
@@ -105,6 +114,7 @@ export class Chicken {
       if (dist(this, nearestFeed) < EAT_RANGE) {
         const consumedType = nearestFeed.type;
         feedManager.consume(nearestFeed);
+        this.appetiteCooldown = APPETITE_COOLDOWN;
         this.pecking = true;
         this.peckTimer = 0.3;
 
@@ -152,6 +162,7 @@ export class Chicken {
     this.vx = 0;
     this.vy = 0;
     this.state = STATE_IDLE;
+    this.appetiteCooldown = 0;
     this.slowTimer = 0;
     this.slowMultiplier = 1;
   }
@@ -212,6 +223,14 @@ export class Chicken {
       ctx.fillRect(px - 2, py - 7, 1, 1);
       ctx.fillRect(px, py - 8, 1, 1);
       ctx.fillRect(px + 2, py - 7, 1, 1);
+    }
+
+    // Appetite cooldown indicator
+    if (this.appetiteCooldown > 0) {
+      ctx.fillStyle = '#8be26a';
+      ctx.fillRect(px - 2, py - 10, 1, 1);
+      ctx.fillRect(px - 1, py - 11, 3, 1);
+      ctx.fillRect(px + 2, py - 10, 1, 1);
     }
 
     // Tail
