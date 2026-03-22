@@ -1,7 +1,7 @@
 // Chicken entity: AI movement, feed distraction, pixel-art rendering
 
-import { PITCH } from './pitch.js';
-import { dist, angleBetween, clamp, randomRange } from './utils.js';
+import { PITCH, LEFT_GOAL, RIGHT_GOAL } from './pitch.js';
+import { dist, angleBetween, clamp, randomRange, lerpAngle } from './utils.js';
 
 const CHICKEN_RADIUS = 5;
 const CHICKEN_SPEED = 50;
@@ -9,6 +9,9 @@ const KICK_RANGE = 8;
 const KICK_POWER = 2.5;
 const EAT_RANGE = 5;
 const DISTRACTION_WEIGHT = 0.7;
+const WALL_MARGIN = 20;
+const WALL_OFFSET = 12;
+const WALL_APPROACH_RANGE = KICK_RANGE + WALL_OFFSET;
 
 const STATE_CHASE_BALL = 'chase';
 const STATE_DISTRACTED = 'distracted';
@@ -32,7 +35,41 @@ export class Chicken {
     this.pecking = false;
     this.peckTimer = 0;
 
+    this.opponentGoalCenter =
+      team === 'left'
+        ? { x: RIGHT_GOAL.x + RIGHT_GOAL.w / 2, y: RIGHT_GOAL.y + RIGHT_GOAL.h / 2 }
+        : { x: LEFT_GOAL.x + LEFT_GOAL.w / 2, y: LEFT_GOAL.y + LEFT_GOAL.h / 2 };
+
+    this.territoryMinX = team === 'left' ? PITCH.x : PITCH.x + PITCH.w * 0.25;
+    this.territoryMaxX = team === 'left' ? PITCH.x + PITCH.w * 0.75 : PITCH.x + PITCH.w;
+
     this.speed = Number.isFinite(gameStats.speed) ? gameStats.speed : CHICKEN_SPEED;
+  }
+
+  _getChaseTarget(ball) {
+    let targetX = ball.x;
+    let targetY = ball.y;
+    const ballDistance = dist(this, ball);
+
+    if (ballDistance > WALL_APPROACH_RANGE) {
+      if (ball.x - PITCH.x <= WALL_MARGIN) targetX += WALL_OFFSET;
+      if (PITCH.x + PITCH.w - ball.x <= WALL_MARGIN) targetX -= WALL_OFFSET;
+      if (ball.y - PITCH.y <= WALL_MARGIN) targetY += WALL_OFFSET;
+      if (PITCH.y + PITCH.h - ball.y <= WALL_MARGIN) targetY -= WALL_OFFSET;
+    }
+
+    targetX = clamp(targetX, this.territoryMinX, this.territoryMaxX);
+    targetY = clamp(targetY, PITCH.y, PITCH.y + PITCH.h);
+
+    return { x: targetX, y: targetY };
+  }
+
+  _getKickAngle(ball) {
+    const chickenToBall = angleBetween(this, ball);
+    const ballToGoal = angleBetween(ball, this.opponentGoalCenter);
+    const baseAngle = lerpAngle(chickenToBall, ballToGoal, 0.6);
+    const spread = randomRange(-0.3, 0.3);
+    return baseAngle + spread;
   }
 
   update(dt, ball, feedManager) {
@@ -58,16 +95,8 @@ export class Chicken {
       }
     } else {
       this.state = STATE_CHASE_BALL;
-      let targetX = ball.x;
-      let targetY = ball.y;
-
-      if (this.team === 'left') {
-        targetX = Math.min(targetX, PITCH.x + PITCH.w * 0.75);
-      } else {
-        targetX = Math.max(targetX, PITCH.x + PITCH.w * 0.25);
-      }
-
-      const toTarget = angleBetween(this, { x: targetX, y: targetY });
+      const target = this._getChaseTarget(ball);
+      const toTarget = angleBetween(this, target);
       this.vx = Math.cos(toTarget) * this.speed;
       this.vy = Math.sin(toTarget) * this.speed;
       this.facing = this.vx > 0 ? 1 : -1;
@@ -85,9 +114,7 @@ export class Chicken {
     this.y = clamp(this.y, PITCH.y + this.radius, PITCH.y + PITCH.h - this.radius);
 
     if (dist(this, ball) < KICK_RANGE && this.state !== STATE_CELEBRATE) {
-      const kickAngle = angleBetween(this, ball);
-      const spread = randomRange(-0.3, 0.3);
-      ball.kick(kickAngle + spread, KICK_POWER);
+      ball.kick(this._getKickAngle(ball), KICK_POWER);
     }
   }
 

@@ -31,3 +31,8 @@ export function randomRange(min, max) {
 export function angleBetween(a, b) {
   return Math.atan2(b.y - a.y, b.x - a.x);
 }
+
+export function lerpAngle(a, b, t) {
+  const diff = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  return a + diff * t;
+}
