@@ -517,6 +517,10 @@ canvas {
   gap: 0.35rem;
 }
 
+.feed-selector-bar--locked {
+  opacity: 0.68;
+}
+
 .feed-slot {
   border: 2px solid rgba(255, 255, 255, 0.16);
   background: rgba(12, 18, 28, 0.75);
@@ -537,6 +541,24 @@ canvas {
 
 .feed-slot--empty {
   opacity: 0.55;
+}
+
+.feed-selector-bar--locked .feed-slot {
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(222, 236, 244, 0.62);
+  box-shadow: none;
+}
+
+.feed-lock-pill {
+  grid-column: 1 / -1;
+  margin: 0;
+  border: 2px solid rgba(255, 220, 124, 0.32);
+  background: rgba(46, 34, 12, 0.72);
+  color: #ffe8aa;
+  font-size: clamp(0.4rem, 0.8vw, 0.52rem);
+  letter-spacing: 0.08em;
+  text-align: center;
+  padding: 0.24rem 0.35rem;
 }
 
 .feed-count {
