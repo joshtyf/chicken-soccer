@@ -36,6 +36,7 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
   const [scores, setScores] = useState({ left: 0, right: 0 });
   const [displayTime, setDisplayTime] = useState(GAME_DURATION);
   const [goalMessage, setGoalMessage] = useState('');
+  const [ballTouched, setBallTouched] = useState(false);
   const [matchup, setMatchup] = useState(selectedMatchup || { playerChicken: null, opponentChicken: null });
   const [selectedFeedType, setSelectedFeedType] = useState('basic');
   const [feedCounts, setFeedCounts] = useState({ slowness: 0 });
@@ -59,6 +60,7 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     clickQueue: [],
     selectedFeedType: 'basic',
     feedCounts: { slowness: 0 },
+    ballTouched: false,
   });
 
   const setupMatchup = useCallback((nextMatchup) => {
@@ -93,6 +95,8 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     s.chickenLeft.resetPosition();
     s.chickenRight.resetPosition();
     s.feedManager.reset();
+    s.ballTouched = false;
+    setBallTouched(false);
   }, []);
 
   const resetMatch = useCallback(() => {
@@ -111,12 +115,14 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     s.chickenRight.resetPosition();
     s.selectedFeedType = 'basic';
     s.feedCounts = { slowness: slownessCount };
+    s.ballTouched = false;
 
     lastDisplayedSecond.current = GAME_DURATION;
     setPhase('playing');
     setScores({ left: 0, right: 0 });
     setDisplayTime(GAME_DURATION);
     setGoalMessage('');
+    setBallTouched(false);
     setSelectedFeedType('basic');
     setFeedCounts({ slowness: slownessCount });
   }, []);
@@ -217,6 +223,7 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
       const clicks = s.clickQueue.splice(0);
       for (const click of clicks) {
         if (s.phase !== 'playing') continue;
+        if (!s.ballTouched) continue;
 
         const requestedType = s.selectedFeedType || 'basic';
         const requestedDef = getFeedDef(requestedType);
@@ -283,6 +290,10 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
       s.ball.update(dt);
       s.chickenLeft.update(dt, s.ball, s.feedManager);
       s.chickenRight.update(dt, s.ball, s.feedManager);
+      if (s.ball.wasKicked && !s.ballTouched) {
+        s.ballTouched = true;
+        setBallTouched(true);
+      }
       s.feedManager.update(dt);
 
       // Goals
@@ -350,6 +361,7 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     displayTime,
     goalMessage,
     matchup,
+    ballTouched,
     selectedFeedType,
     feedCounts,
     togglePause,

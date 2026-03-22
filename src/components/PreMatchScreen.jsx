@@ -29,7 +29,7 @@ export default function PreMatchScreen({ onBack, onConfirm }) {
 
   return (
     <ScreenLayout
-      panelClassName="menu-card"
+      panelClassName="grid min-h-[min(78%,430px)] w-[min(88%,700px)] content-center gap-4 p-[clamp(1rem,2vw,2rem)] text-center max-[720px]:w-[min(94%,700px)]"
       screenMotion={{ transition: { duration: 0.3 } }}
       panelMotion={{
         initial: { scale: 0.92, y: 10 },
@@ -40,7 +40,7 @@ export default function PreMatchScreen({ onBack, onConfirm }) {
     >
       <AnimatedTitle words={titleWords} ariaLabel="Pre match" delayStep={0.04} duration={0.32} />
 
-      <p className="screen-subtitle">
+      <p className="text-[clamp(0.58rem,1.2vw,0.75rem)] leading-[1.7] text-text-muted">
         CHOOSE YOUR STARTING CHICKEN.
         <br />
         YOU WILL FACE A RANDOM OPPONENT.
@@ -54,7 +54,7 @@ export default function PreMatchScreen({ onBack, onConfirm }) {
         onSelect={setSelectedChickenId}
       />
 
-      <div className="action-row">
+      <div className="flex flex-wrap justify-center gap-[0.7rem]">
         <UiButton onClick={onBack}>BACK</UiButton>
         <UiButton
           className="pulse-hint"

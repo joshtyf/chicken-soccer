@@ -17,7 +17,7 @@ export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0
 
   return (
     <ScreenLayout
-      panelClassName="dashboard-card"
+      panelClassName="grid min-h-[min(82%,520px)] w-[min(92%,760px)] content-center gap-4 p-[clamp(1rem,2.2vw,2rem)] text-center max-[720px]:w-[min(96%,760px)]"
       panelMotion={{
         initial: { scale: 0.95, y: 12 },
         animate: { scale: 1, y: 0 },
@@ -26,7 +26,7 @@ export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0
     >
       <AnimatedTitle words={titleWords} ariaLabel="Chicken Soccer" delayStep={0.03} duration={0.28} />
 
-      <p className="screen-subtitle">
+      <p className="text-[clamp(0.58rem,1.2vw,0.75rem)] leading-[1.7] text-text-muted">
         VIEW YOUR CHICKENS AND THEIR STATS.
         <br />
         PICK YOUR STARTER ON THE NEXT SCREEN.
@@ -40,7 +40,7 @@ export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0
         ariaLabel="Your chickens"
       />
 
-      <div className="action-row">
+      <div className="flex flex-wrap justify-center gap-[0.7rem]">
         <UiButton onClick={onOpenStore}>SHOP</UiButton>
         <UiButton onClick={onStartMatch}>START MATCH</UiButton>
       </div>

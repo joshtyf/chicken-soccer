@@ -24,7 +24,10 @@ export default function ScreenLayout({
   const resolvedPanelMotion = { ...DEFAULT_PANEL_MOTION, ...panelMotion };
 
   return (
-    <motion.div className="screen-page" {...resolvedScreenMotion}>
+    <motion.div
+      className="flex min-h-[min(760px,calc(100vh-2rem))] w-[min(960px,calc(100vw-2rem))] items-center justify-center max-[720px]:min-h-[min(760px,calc(100vh-1rem))] max-[720px]:w-[min(960px,calc(100vw-1rem))]"
+      {...resolvedScreenMotion}
+    >
       <motion.div className={`overlay-panel ${panelClassName}`.trim()} {...resolvedPanelMotion}>
         {children}
       </motion.div>

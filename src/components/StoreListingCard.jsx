@@ -3,7 +3,7 @@ import UiButton from './UiButton';
 
 export default function StoreListingCard({ listing, canAfford, onBuy }) {
   return (
-    <div className="store-item">
+    <div className="grid gap-[0.45rem] border-2 border-white/18 bg-[rgba(8,14,21,0.62)] p-[0.45rem]">
       <ChickenCard
         chicken={{
           id: listing.id,
@@ -13,10 +13,10 @@ export default function StoreListingCard({ listing, canAfford, onBuy }) {
         selected={false}
       />
 
-      <div className="store-item-footer">
-        <p className="store-price">{listing.price} PP</p>
+      <div className="flex items-center justify-between gap-[0.5rem] max-[720px]:flex-wrap max-[720px]:justify-center">
+        <p className="text-[clamp(0.52rem,1vw,0.64rem)] text-[#ffe08b]">{listing.price} PP</p>
         <UiButton
-          className="store-buy-btn"
+          className="min-w-[88px] px-[0.8rem] py-[0.5rem] text-[clamp(0.52rem,1vw,0.62rem)]"
           hoverScale={1.03}
           onClick={() => onBuy(listing)}
           disabled={!canAfford}

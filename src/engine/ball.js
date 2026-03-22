@@ -13,6 +13,7 @@ export class Ball {
     this.y = PITCH.y + PITCH.h / 2;
     this.vx = 0;
     this.vy = 0;
+    this.wasKicked = false;
   }
 
   update(dt) {
@@ -54,6 +55,7 @@ export class Ball {
   kick(angle, power) {
     this.vx += Math.cos(angle) * power;
     this.vy += Math.sin(angle) * power;
+    this.wasKicked = true;
   }
 
   draw(ctx) {

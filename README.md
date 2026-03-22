@@ -11,7 +11,7 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 1. View your chicken collection on the dashboard.
 2. Click "Start Match" to go to the pre-match screen.
 3. Select your chicken and confirm to start the match.
-4. Click or tap on the pitch to throw feed.
+4. Wait for the first ball touch, then click or tap on the pitch to throw feed.
 5. Press `1` for basic feed (unlimited).
 6. Press `2` for slowness feed (limited inventory).
 7. Nearby chickens may abandon the ball to chase feed.
@@ -75,6 +75,7 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 | --- | --- |
 | UI Framework | React 19 |
 | Build Tool | Vite 8 |
+| Styling | Tailwind CSS v4 + CSS component layer |
 | Rendering | HTML5 Canvas 2D |
 | Animation | Framer Motion |
 | Language | JavaScript (ES Modules + JSX) |
@@ -167,6 +168,7 @@ npm run preview
   - Goal bonus: 5 PP per player goal
   - Rewards shown at full time
 - Feed system:
+  - Feed is locked until first ball touch after kickoff and after each goal reset
   - Feed lasts 4 seconds
   - Attraction radius is 30px
   - Max 5 active feed piles per player
@@ -184,6 +186,8 @@ npm run preview
 
 - Internal world resolution is low-res and scaled up for a pixel-art look.
 - UI overlays (menu, HUD, goal, game over) are rendered with React and Framer Motion above the canvas.
+- Tailwind CSS v4 is configured through `@tailwindcss/vite` and `src/index.css` (`@import "tailwindcss"` + `@theme` tokens).
+- The UI uses a hybrid styling model: Tailwind utilities for layout/spacing/typography and a small CSS component layer for complex visual effects (glassmorphism panels, retro buttons, canvas framing).
 - Data flow is split into `src/data/` for persistence/domain modeling, `src/engine/` for simulation, and `src/components/` for UI.
 - The stat pipeline is intentionally extensible so future work can add training and additional stats without redesigning persistence.
 
