@@ -108,6 +108,16 @@ canvas {
   gap: 1rem;
 }
 
+.store-card {
+  width: min(92%, 860px);
+  min-height: min(84%, 620px);
+  padding: clamp(1rem, 2.2vw, 2rem);
+  text-align: center;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+}
+
 .screen-title {
   color: var(--text-main);
   text-shadow: 0 0 12px rgba(255, 230, 140, 0.2);
@@ -124,6 +134,16 @@ canvas {
   color: var(--text-muted);
   font-size: clamp(0.58rem, 1.2vw, 0.75rem);
   line-height: 1.7;
+}
+
+.store-subtitle {
+  margin-bottom: 0.15rem;
+}
+
+.store-feedback {
+  min-height: 1.2em;
+  color: #ffe08b;
+  font-size: clamp(0.5rem, 1vw, 0.63rem);
 }
 
 .ui-button {
@@ -190,6 +210,50 @@ canvas {
 .chicken-list {
   display: grid;
   gap: 0.5rem;
+}
+
+.store-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  max-height: min(48vh, 380px);
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.store-item {
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  background: rgba(8, 14, 21, 0.62);
+  padding: 0.45rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.store-item-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.store-price {
+  font-size: clamp(0.52rem, 1vw, 0.64rem);
+  color: #ffe08b;
+}
+
+.store-buy-btn {
+  min-width: 88px;
+  padding: 0.5rem 0.8rem;
+  font-size: clamp(0.52rem, 1vw, 0.62rem);
+}
+
+.store-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: clamp(0.56rem, 1.1vw, 0.68rem);
+  padding: 1.2rem 0.5rem;
 }
 
 .chicken-card {
@@ -390,6 +454,18 @@ canvas {
   font-size: clamp(0.9rem, 2.1vw, 1.2rem);
 }
 
+.reward-panel {
+  width: min(100%, 420px);
+  margin: 0 auto;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: rgba(11, 20, 29, 0.72);
+  padding: 0.6rem;
+  display: grid;
+  gap: 0.42rem;
+  font-size: clamp(0.48rem, 0.95vw, 0.58rem);
+  color: var(--text-main);
+}
+
 .final-score {
   display: flex;
   justify-content: center;
@@ -410,6 +486,45 @@ canvas {
 
 .pause-subtitle {
   margin-bottom: 0.25rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 8, 12, 0.58);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+  padding: 1rem;
+}
+
+.naming-modal {
+  width: min(96vw, 520px);
+  padding: clamp(1rem, 2vw, 1.5rem);
+  display: grid;
+  gap: 0.9rem;
+}
+
+.naming-title {
+  text-align: center;
+  font-size: clamp(0.7rem, 1.4vw, 0.9rem);
+}
+
+.naming-input {
+  width: 100%;
+  border: 2px solid rgba(255, 255, 255, 0.32);
+  background: rgba(8, 12, 18, 0.85);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: clamp(0.58rem, 1.1vw, 0.7rem);
+  padding: 0.72rem;
+  outline: none;
+}
+
+.naming-input:focus {
+  border-color: rgba(255, 225, 120, 0.85);
+  box-shadow: 0 0 0 2px rgba(255, 205, 94, 0.16);
 }
 
 .pulse-hint {
@@ -439,6 +554,21 @@ canvas {
 
   .dashboard-card {
     width: min(96%, 760px);
+  }
+
+  .store-card {
+    width: min(97%, 860px);
+    min-height: min(90%, 760px);
+  }
+
+  .store-grid {
+    grid-template-columns: 1fr;
+    max-height: min(46vh, 360px);
+  }
+
+  .store-item-footer {
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .picker-title {

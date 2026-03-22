@@ -10,7 +10,7 @@ function getResult(scores) {
   return { text: 'DRAW!', className: '' };
 }
 
-export default function GameOverScreen({ scores, matchup, onContinue }) {
+export default function GameOverScreen({ scores, matchup, reward, onContinue }) {
   const result = getResult(scores);
   const playerChicken = matchup?.playerChicken;
   const opponentChicken = matchup?.opponentChicken;
@@ -53,6 +53,15 @@ export default function GameOverScreen({ scores, matchup, onContinue }) {
         <p className="screen-subtitle">
           YOU: {playerChicken?.name || '---'} VS CPU: {opponentChicken?.name || '---'}
         </p>
+
+        {reward && (
+          <div className="reward-panel" aria-label="Match rewards">
+            <p>WIN BONUS: {reward.winBonus} PP</p>
+            <p>GOAL BONUS: {reward.goalBonus} PP</p>
+            <p>TOTAL EARNED: {reward.total} PP</p>
+            <p>BALANCE: {reward.newBalance} PP</p>
+          </div>
+        )}
 
         <motion.button
           type="button"

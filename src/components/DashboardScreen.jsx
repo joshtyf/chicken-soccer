@@ -5,7 +5,7 @@ import { chickenDB } from '../data/chickenDB';
 
 const titleWords = ['CHICKEN', 'SOCCER'];
 
-export default function DashboardScreen({ onStartMatch }) {
+export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0 }) {
   const [chickens, setChickens] = useState([]);
 
   useEffect(() => {
@@ -50,6 +50,8 @@ export default function DashboardScreen({ onStartMatch }) {
           VIEW YOUR CHICKENS AND THEIR STATS.
           <br />
           PICK YOUR STARTER ON THE NEXT SCREEN.
+          <br />
+          BALANCE: {balance} PP
         </p>
 
         <section className="chicken-picker" aria-label="Your chickens">
@@ -61,15 +63,27 @@ export default function DashboardScreen({ onStartMatch }) {
           </div>
         </section>
 
-        <motion.button
-          type="button"
-          className="ui-button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onStartMatch}
-        >
-          START MATCH
-        </motion.button>
+        <div className="action-row">
+          <motion.button
+            type="button"
+            className="ui-button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onOpenStore}
+          >
+            SHOP
+          </motion.button>
+
+          <motion.button
+            type="button"
+            className="ui-button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onStartMatch}
+          >
+            START MATCH
+          </motion.button>
+        </div>
       </motion.div>
     </motion.div>
   );

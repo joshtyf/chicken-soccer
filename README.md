@@ -4,6 +4,8 @@ A fast-paced 1v1 chicken soccer game built with React and Canvas 2D.
 
 The first screen is your dashboard, where you see your chicken collection and their stats. Start a match to pick your chicken, then play against a random AI opponent. You influence the match by throwing chicken feed to distract the opponent. Each chicken brings its stats into the match.
 
+The game now includes a daily chicken store and an in-game currency called Pok Pok (PP). You can earn PP from matches, then spend it to buy and name new chickens for your collection.
+
 ## How To Play
 
 1. View your chicken collection on the dashboard.
@@ -13,6 +15,31 @@ The first screen is your dashboard, where you see your chicken collection and th
 5. Nearby chickens may abandon the ball to chase feed.
 6. Use feed placement strategically to open scoring chances.
 7. Score more goals before the 90-second timer ends.
+8. Use the shop from the dashboard to buy new chickens with PP.
+
+## Economy and Rewards
+
+- Currency: Pok Pok (PP)
+- Reward formula:
+  - Goal reward: 5 PP per goal scored (always)
+  - Win bonus: random 0-50 PP (only if you win)
+  - Total reward: win bonus + goal reward
+- Reward payout happens at full time and is shown on the game-over screen.
+- PP balance is persistent and available from the dashboard and store views.
+
+## Daily Store
+
+- The store is accessible from the dashboard via the SHOP button.
+- Store inventory rotates daily using date-seeded generation.
+- Daily inventory size is randomized between 3 and 10 chickens.
+- Store chicken stats are randomized on generation.
+- Prices are relative to daily listings and range from 100 to 500 PP.
+- Higher-stat chickens cost more than lower-stat chickens in the same day.
+- Buying flow:
+  - Click BUY on a listing
+  - Name your chicken in the purchase modal
+  - Confirm purchase to add chicken to your collection
+- Purchased listings are removed and cannot be bought again.
 
 ## Chicken Collection
 
@@ -21,6 +48,7 @@ The first screen is your dashboard, where you see your chicken collection and th
 - Stat values use a player-facing scale from `0` to `100`, where `100` is the fastest.
 - A starter chicken is generated automatically on first launch.
 - Opponents are generated fresh each match with their own random stats.
+- Store-bought chickens are added to the same persistent collection.
 
 ## Persistence Model
 
@@ -28,6 +56,8 @@ The first screen is your dashboard, where you see your chicken collection and th
 - The storage format is JSONL, with one chicken record serialized per line.
 - Persistence is wrapped behind a small data access layer so it can be replaced later by a backend or different storage mechanism.
 - Stat definitions and runtime conversion are centralized so future features like training and new stats can be added without rewriting the game loop.
+- Player balance is stored separately in `localStorage` under player data.
+- Daily store state (date + remaining listings) is stored in `localStorage`.
 
 ## Tech Stack
 
@@ -58,11 +88,16 @@ The first screen is your dashboard, where you see your chicken collection and th
 │   │   ├── GameHUD.jsx
 │   │   ├── GoalOverlay.jsx
 │   │   ├── GameOverScreen.jsx
-│   │   └── PauseOverlay.jsx
+│   │   ├── PauseOverlay.jsx
+│   │   ├── StoreScreen.jsx
+│   │   └── NamingModal.jsx
 │   ├── data/
 │   │   ├── chickenDB.js
 │   │   ├── chickenModel.js
-│   │   └── statDefs.js
+│   │   ├── statDefs.js
+│   │   ├── playerDB.js
+│   │   ├── rewardLogic.js
+│   │   └── shopLogic.js
 │   ├── engine/
 │   │   ├── pitch.js
 │   │   ├── ball.js
@@ -106,6 +141,10 @@ npm run preview
 
 - Match length: 90 seconds
 - Teams: your selected red chicken vs a randomly generated blue chicken
+- Economy:
+  - Win bonus: random 0-50 PP (wins only)
+  - Goal bonus: 5 PP per player goal
+  - Rewards shown at full time
 - Feed system:
   - Feed lasts 4 seconds
   - Attraction radius is 30px
