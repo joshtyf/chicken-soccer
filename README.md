@@ -81,16 +81,24 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 │   ├── index.css
 │   ├── main.jsx
 │   ├── components/
-│   │   ├── DashboardScreen.jsx
-│   │   ├── PreMatchScreen.jsx
-│   │   ├── ChickenCard.jsx
-│   │   ├── GameCanvas.jsx
-│   │   ├── GameHUD.jsx
-│   │   ├── GoalOverlay.jsx
-│   │   ├── GameOverScreen.jsx
-│   │   ├── PauseOverlay.jsx
-│   │   ├── StoreScreen.jsx
-│   │   └── NamingModal.jsx
+│   │   ├── primitives (shared UI)
+│   │   │   ├── UiButton.jsx        — motion.button wrapper with standard hover/tap scales
+│   │   │   ├── ScreenLayout.jsx    — two-layer screen-page + overlay-panel motion wrapper
+│   │   │   ├── AnimatedTitle.jsx   — letter-by-letter spring title animation
+│   │   │   ├── ChickenList.jsx     — chicken picker section (title + card grid)
+│   │   │   └── StoreListingCard.jsx — single store listing tile (card + price + buy button)
+│   │   ├── screens
+│   │   │   ├── DashboardScreen.jsx
+│   │   │   ├── PreMatchScreen.jsx
+│   │   │   ├── GameCanvas.jsx
+│   │   │   ├── GameOverScreen.jsx
+│   │   │   └── StoreScreen.jsx
+│   │   └── overlays
+│   │       ├── GameHUD.jsx
+│   │       ├── GoalOverlay.jsx
+│   │       ├── PauseOverlay.jsx
+│   │       ├── NamingModal.jsx
+│   │       └── ChickenCard.jsx
 │   ├── data/
 │   │   ├── chickenDB.js
 │   │   ├── chickenModel.js
@@ -105,7 +113,8 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 │   │   ├── feed.js
 │   │   └── utils.js
 │   └── hooks/
-│       └── useGameLoop.js
+│       ├── useGameLoop.js
+│       └── useShop.js
 └── .github/
     ├── copilot-instructions.md
     └── skills/

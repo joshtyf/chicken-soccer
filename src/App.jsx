@@ -9,9 +9,16 @@ import { playerDB } from './data/playerDB';
 import { calculateMatchReward } from './data/rewardLogic';
 
 const INITIAL_SCORES = { left: 0, right: 0 };
+const SCREENS = {
+  DASHBOARD: 'dashboard',
+  STORE: 'store',
+  PREMATCH: 'prematch',
+  MATCH: 'match',
+  GAMEOVER: 'gameover',
+};
 
 export default function App() {
-  const [screen, setScreen] = useState('dashboard');
+  const [screen, setScreen] = useState(SCREENS.DASHBOARD);
   const [balance, setBalance] = useState(() => playerDB.getBalance());
   const [activeMatchup, setActiveMatchup] = useState(null);
   const [matchResult, setMatchResult] = useState({
@@ -21,12 +28,12 @@ export default function App() {
   });
 
   function handleStartMatch() {
-    setScreen('prematch');
+    setScreen(SCREENS.PREMATCH);
   }
 
   function handleConfirmMatch(playerChicken, opponentChicken) {
     setActiveMatchup({ playerChicken, opponentChicken });
-    setScreen('match');
+    setScreen(SCREENS.MATCH);
   }
 
   function handleMatchEnd(result) {
@@ -41,20 +48,20 @@ export default function App() {
         newBalance: nextBalance,
       },
     });
-    setScreen('gameover');
+    setScreen(SCREENS.GAMEOVER);
   }
 
   function handleBackToDashboard() {
-    setScreen('dashboard');
+    setScreen(SCREENS.DASHBOARD);
   }
 
   function handleOpenStore() {
-    setScreen('store');
+    setScreen(SCREENS.STORE);
   }
 
   return (
     <AnimatePresence mode="wait">
-      {screen === 'dashboard' && (
+      {screen === SCREENS.DASHBOARD && (
         <DashboardScreen
           key="dashboard"
           balance={balance}
@@ -63,7 +70,7 @@ export default function App() {
         />
       )}
 
-      {screen === 'store' && (
+      {screen === SCREENS.STORE && (
         <StoreScreen
           key="store"
           onBack={handleBackToDashboard}
@@ -71,7 +78,7 @@ export default function App() {
         />
       )}
 
-      {screen === 'prematch' && (
+      {screen === SCREENS.PREMATCH && (
         <PreMatchScreen
           key="prematch"
           onBack={handleBackToDashboard}
@@ -79,7 +86,7 @@ export default function App() {
         />
       )}
 
-      {screen === 'match' && (
+      {screen === SCREENS.MATCH && (
         <GameCanvas
           key="match"
           matchup={activeMatchup}
@@ -88,7 +95,7 @@ export default function App() {
         />
       )}
 
-      {screen === 'gameover' && (
+      {screen === SCREENS.GAMEOVER && (
         <GameOverScreen
           key="gameover"
           scores={matchResult.scores}

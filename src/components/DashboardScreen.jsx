@@ -1,6 +1,8 @@
-import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import ChickenCard from './ChickenCard';
+import AnimatedTitle from './AnimatedTitle';
+import ChickenList from './ChickenList';
+import ScreenLayout from './ScreenLayout';
+import UiButton from './UiButton';
 import { chickenDB } from '../data/chickenDB';
 
 const titleWords = ['CHICKEN', 'SOCCER'];
@@ -14,77 +16,34 @@ export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0
   }, []);
 
   return (
-    <motion.div
-      className="screen-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.28 }}
+    <ScreenLayout
+      panelClassName="dashboard-card"
+      panelMotion={{
+        initial: { scale: 0.95, y: 12 },
+        animate: { scale: 1, y: 0 },
+        exit: { scale: 1.02, opacity: 0 },
+      }}
     >
-      <motion.div
-        className="overlay-panel dashboard-card"
-        initial={{ scale: 0.95, y: 12 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 1.02, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-      >
-        <h1 className="screen-title" aria-label="Chicken Soccer">
-          {titleWords.map((word) => (
-            <div key={word}>
-              {word.split('').map((char, index) => (
-                <motion.span
-                  key={`${word}-${index}`}
-                  className="word"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.28, delay: index * 0.03 }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </div>
-          ))}
-        </h1>
+      <AnimatedTitle words={titleWords} ariaLabel="Chicken Soccer" delayStep={0.03} duration={0.28} />
 
-        <p className="screen-subtitle">
-          VIEW YOUR CHICKENS AND THEIR STATS.
-          <br />
-          PICK YOUR STARTER ON THE NEXT SCREEN.
-          <br />
-          BALANCE: {balance} PP
-        </p>
+      <p className="screen-subtitle">
+        VIEW YOUR CHICKENS AND THEIR STATS.
+        <br />
+        PICK YOUR STARTER ON THE NEXT SCREEN.
+        <br />
+        BALANCE: {balance} PP
+      </p>
 
-        <section className="chicken-picker" aria-label="Your chickens">
-          <p className="picker-title">CHICKEN COLLECTION</p>
-          <div className="chicken-list">
-            {chickens.map((chicken) => (
-              <ChickenCard key={chicken.id} chicken={chicken} selected={false} />
-            ))}
-          </div>
-        </section>
+      <ChickenList
+        chickens={chickens}
+        title="CHICKEN COLLECTION"
+        ariaLabel="Your chickens"
+      />
 
-        <div className="action-row">
-          <motion.button
-            type="button"
-            className="ui-button"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={onOpenStore}
-          >
-            SHOP
-          </motion.button>
-
-          <motion.button
-            type="button"
-            className="ui-button"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={onStartMatch}
-          >
-            START MATCH
-          </motion.button>
-        </div>
-      </motion.div>
-    </motion.div>
+      <div className="action-row">
+        <UiButton onClick={onOpenStore}>SHOP</UiButton>
+        <UiButton onClick={onStartMatch}>START MATCH</UiButton>
+      </div>
+    </ScreenLayout>
   );
 }

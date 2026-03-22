@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import UiButton from './UiButton';
 
 export default function PauseOverlay({ onResume, onMainMenu }) {
   return (
@@ -22,25 +23,13 @@ export default function PauseOverlay({ onResume, onMainMenu }) {
 
         <p className="screen-subtitle pause-subtitle">PRESS ESC OR CHOOSE AN ACTION</p>
 
-        <motion.button
-          type="button"
-          className="ui-button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onResume}
-        >
+        <UiButton onClick={onResume}>
           RESUME
-        </motion.button>
+        </UiButton>
 
-        <motion.button
-          type="button"
-          className="ui-button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onMainMenu}
-        >
+        <UiButton onClick={onMainMenu}>
           DASHBOARD
-        </motion.button>
+        </UiButton>
       </motion.div>
     </motion.div>
   );

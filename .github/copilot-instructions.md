@@ -15,23 +15,37 @@ index.html                    — Vite entry point
 vite.config.js                — Vite + React plugin config
 src/
   main.jsx                    — React root mount
-  App.jsx                     — Top-level App component
+  App.jsx                     — Screen state machine (SCREENS constant + handlers)
   index.css                   — Pixelated theme, retro styling
   components/
+    — Shared UI primitives (compose into screens and overlays)
+    UiButton.jsx              — motion.button with standard hover/tap scales; accepts className append
+    ScreenLayout.jsx          — Two-layer screen-page + overlay-panel motion wrapper; panelMotion override
+    AnimatedTitle.jsx         — Letter-by-letter spring title; words[], ariaLabel, delayStep, duration props
+    ChickenList.jsx           — Chicken picker section (section + picker-title + ChickenCard grid)
+    StoreListingCard.jsx      — Single store listing tile (ChickenCard + price + BUY button)
+    — Screens
     DashboardScreen.jsx       — Dashboard: chicken collection, start match
     PreMatchScreen.jsx        — Pre-match: select chicken, confirm
-    ChickenCard.jsx           — Selectable chicken card for menu collection UI
     GameCanvas.jsx            — Canvas element with ref, renders the game
+    GameOverScreen.jsx        — End-of-match result and reward summary
+    StoreScreen.jsx           — Daily store: listing grid, purchase flow (state via useShop)
+    — Overlays
     GameHUD.jsx               — Score, timer, and current matchup metadata
-    GameOverScreen.jsx        — End-of-match overlay
     GoalOverlay.jsx           — Goal announcement overlay
     PauseOverlay.jsx          — Pause overlay
+    NamingModal.jsx           — Purchase naming modal (AnimatePresence + controlled input)
+    ChickenCard.jsx           — Selectable chicken card for collection and store UI
   data/
     statDefs.js               — Stat metadata, sanitization, and game-value mapping
     chickenModel.js           — Chicken factories, normalization, and opponent generation
     chickenDB.js              — localStorage-backed JSONL persistence layer
+    playerDB.js               — Player balance persistence
+    rewardLogic.js            — Match reward calculation (pure functions)
+    shopLogic.js              — Daily shop generation and purchase logic (seeded RNG)
   hooks/
     useGameLoop.js            — requestAnimationFrame loop, state, input, rendering
+    useShop.js                — Store state and purchase actions (extracted from StoreScreen)
   engine/
     pitch.js                  — Pitch rendering, goal detection, world constants
     ball.js                   — Soccer ball physics
@@ -64,6 +78,9 @@ src/
 - Use AABB or circle-based collision detection
 - Pixel-art assets rendered at low resolution (320×180), scaled up with nearest-neighbor interpolation
 - New stats should be added by extending `src/data/statDefs.js` first, then resolved into runtime values rather than hardcoding behavior in the UI
+- **Shared UI primitives**: prefer composing `UiButton`, `ScreenLayout`, `AnimatedTitle`, and `ChickenList` rather than repeating raw `motion.*` boilerplate in screen components
+- **Custom hooks for screen state**: extract multi-`useState` + side-effect bundles into a dedicated hook in `src/hooks/` (e.g. `useShop`) to keep screen components focused on rendering
+- **Screen routing constants**: add new screens to the `SCREENS` object in `App.jsx` rather than using raw string literals
 
 ## Key Design Decisions
 - No external game dependencies — pure Canvas 2D rendering, React for component structure
@@ -83,3 +100,4 @@ npm run build   # production build
 ## Skills
 - See `.github/skills/game-engine/` for game development patterns and references
 - See `.github/skills/premium-frontend-ui/` for immersive frontend UI craftsmanship patterns
+- See `.github/skills/frontend-patterns/` for React component composition, custom hooks, and state management patterns

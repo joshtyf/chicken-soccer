@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import UiButton from './UiButton';
 
 export default function NamingModal({ open, chickenNameHint, onConfirm, onCancel }) {
   const [value, setValue] = useState('');
@@ -41,26 +42,17 @@ export default function NamingModal({ open, chickenNameHint, onConfirm, onCancel
             />
 
             <div className="action-row">
-              <motion.button
-                type="button"
-                className="ui-button"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={onCancel}
-              >
+              <UiButton hoverScale={1.03} onClick={onCancel}>
                 CANCEL
-              </motion.button>
+              </UiButton>
 
-              <motion.button
-                type="button"
-                className="ui-button"
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+              <UiButton
+                hoverScale={1.03}
                 onClick={() => onConfirm(value.trim())}
                 disabled={!canConfirm}
               >
                 CONFIRM
-              </motion.button>
+              </UiButton>
             </div>
           </motion.div>
         </motion.div>

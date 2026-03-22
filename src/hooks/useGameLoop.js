@@ -9,6 +9,26 @@ import { generateRandomOpponent, generateStarterChicken, resolveGameStats } from
 
 const GAME_DURATION = 90;
 
+function resolveCircleOverlap(a, b) {
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const minDistance = a.radius + b.radius;
+
+  if (distance >= minDistance || distance === 0) {
+    return;
+  }
+
+  const overlap = (minDistance - distance) / 2;
+  const nx = dx / distance;
+  const ny = dy / distance;
+
+  a.x -= nx * overlap;
+  a.y -= ny * overlap;
+  b.x += nx * overlap;
+  b.y += ny * overlap;
+}
+
 export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, onQuit } = {}) {
   const [phase, setPhase] = useState('playing');
   const [scores, setScores] = useState({ left: 0, right: 0 });
@@ -198,8 +218,10 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
       if (s.phase === 'goal') {
         s.goalTimer -= dt;
         if (s.goalTimer <= 0) {
+          resetAfterGoal();
           s.phase = 'playing';
           setPhase('playing');
+          setGoalMessage('');
         }
         return;
       }
@@ -220,7 +242,6 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
         setScores({ left: s.scoreLeft, right: s.scoreRight });
         setGoalMessage(s.goalMessage);
         setPhase('goal');
-        setTimeout(resetAfterGoal, 1500);
       } else if (isInRightGoal(s.ball)) {
         s.scoreLeft++;
         s.goalMessage = 'RED SCORES!';
@@ -230,22 +251,10 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
         setScores({ left: s.scoreLeft, right: s.scoreRight });
         setGoalMessage(s.goalMessage);
         setPhase('goal');
-        setTimeout(resetAfterGoal, 1500);
       }
 
-      // Push chickens apart
-      const dx = s.chickenRight.x - s.chickenLeft.x;
-      const dy = s.chickenRight.y - s.chickenLeft.y;
-      const d = Math.sqrt(dx * dx + dy * dy);
-      if (d < s.chickenLeft.radius + s.chickenRight.radius && d > 0) {
-        const overlap = (s.chickenLeft.radius + s.chickenRight.radius - d) / 2;
-        const nx = dx / d;
-        const ny = dy / d;
-        s.chickenLeft.x -= nx * overlap;
-        s.chickenLeft.y -= ny * overlap;
-        s.chickenRight.x += nx * overlap;
-        s.chickenRight.y += ny * overlap;
-      }
+      // Keep chickens from stacking on each other while contesting the ball.
+      resolveCircleOverlap(s.chickenLeft, s.chickenRight);
     }
 
     function draw(ctx, s) {

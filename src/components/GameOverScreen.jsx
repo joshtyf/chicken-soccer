@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import ScreenLayout from './ScreenLayout';
+import UiButton from './UiButton';
 
 function getResult(scores) {
   if (scores.left > scores.right) {
@@ -16,63 +18,50 @@ export default function GameOverScreen({ scores, matchup, reward, onContinue }) 
   const opponentChicken = matchup?.opponentChicken;
 
   return (
-    <motion.div
-      className="screen-page"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
+    <ScreenLayout
+      panelClassName="gameover-card"
+      screenMotion={{ transition: { duration: 0.25 } }}
+      panelMotion={{
+        initial: { y: 18, opacity: 0 },
+        animate: { y: 0, opacity: 1 },
+        exit: { y: -8, opacity: 0 },
+        transition: { type: 'spring', stiffness: 250, damping: 22 },
+      }}
     >
-      <motion.div
-        className="overlay-panel gameover-card"
-        initial={{ y: 18, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -8, opacity: 0 }}
-        transition={{ type: 'spring', stiffness: 250, damping: 22 }}
+      <h2 className="screen-title">
+        <span className="word">FULL</span>
+        <span className="word">TIME</span>
+      </h2>
+
+      <div className="final-score" aria-label="Final score">
+        <span className="team-red">{scores.left}</span>
+        <span>-</span>
+        <span className="team-blue">{scores.right}</span>
+      </div>
+
+      <motion.p
+        className={`result-line ${result.className}`.trim()}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.25 }}
       >
-        <h2 className="screen-title">
-          <span className="word">FULL</span>
-          <span className="word">TIME</span>
-        </h2>
+        {result.text}
+      </motion.p>
 
-        <div className="final-score" aria-label="Final score">
-          <span className="team-red">{scores.left}</span>
-          <span>-</span>
-          <span className="team-blue">{scores.right}</span>
+      <p className="screen-subtitle">
+        YOU: {playerChicken?.name || '---'} VS CPU: {opponentChicken?.name || '---'}
+      </p>
+
+      {reward && (
+        <div className="reward-panel" aria-label="Match rewards">
+          <p>WIN BONUS: {reward.winBonus} PP</p>
+          <p>GOAL BONUS: {reward.goalBonus} PP</p>
+          <p>TOTAL EARNED: {reward.total} PP</p>
+          <p>BALANCE: {reward.newBalance} PP</p>
         </div>
+      )}
 
-        <motion.p
-          className={`result-line ${result.className}`.trim()}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.25 }}
-        >
-          {result.text}
-        </motion.p>
-
-        <p className="screen-subtitle">
-          YOU: {playerChicken?.name || '---'} VS CPU: {opponentChicken?.name || '---'}
-        </p>
-
-        {reward && (
-          <div className="reward-panel" aria-label="Match rewards">
-            <p>WIN BONUS: {reward.winBonus} PP</p>
-            <p>GOAL BONUS: {reward.goalBonus} PP</p>
-            <p>TOTAL EARNED: {reward.total} PP</p>
-            <p>BALANCE: {reward.newBalance} PP</p>
-          </div>
-        )}
-
-        <motion.button
-          type="button"
-          className="ui-button"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onContinue}
-        >
-          BACK TO DASHBOARD
-        </motion.button>
-      </motion.div>
-    </motion.div>
+      <UiButton onClick={onContinue}>BACK TO DASHBOARD</UiButton>
+    </ScreenLayout>
   );
 }
