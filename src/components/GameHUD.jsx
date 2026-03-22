@@ -6,7 +6,7 @@ function formatTime(totalSeconds) {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export default function GameHUD({ scores, displayTime, matchup }) {
+export default function GameHUD({ scores, displayTime, matchup, onPause }) {
   const playerChicken = matchup?.playerChicken;
   const opponentChicken = matchup?.opponentChicken;
 
@@ -44,7 +44,19 @@ export default function GameHUD({ scores, displayTime, matchup }) {
             </motion.span>
           </div>
 
-          <p className="timer">{formatTime(displayTime)}</p>
+          <div className="hud-actions">
+            <p className="timer">{formatTime(displayTime)}</p>
+            <motion.button
+              type="button"
+              className="pause-btn"
+              aria-label="Pause game"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onPause}
+            >
+              II
+            </motion.button>
+          </div>
         </div>
       </div>
 

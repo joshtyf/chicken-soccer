@@ -284,9 +284,46 @@ canvas {
 }
 
 .timer {
-  justify-self: end;
   color: var(--text-main);
   font-size: clamp(0.62rem, 1.2vw, 0.85rem);
+}
+
+.hud-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  pointer-events: auto;
+}
+
+.pause-btn {
+  min-width: 2.2rem;
+  height: 2rem;
+  padding: 0 0.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.34);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.08));
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: clamp(0.52rem, 1vw, 0.65rem);
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.35),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.18);
+}
+
+.pause-btn:hover {
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.4),
+    0 0 12px rgba(255, 255, 255, 0.12),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.18);
+}
+
+.pause-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.4),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.18);
 }
 
 .hud-vs {
@@ -332,6 +369,20 @@ canvas {
   font-size: clamp(1.6rem, 6vw, 3.2rem);
 }
 
+.pause-card {
+  width: min(86%, 460px);
+  min-height: 280px;
+  padding: clamp(1rem, 2vw, 1.6rem);
+  text-align: center;
+  display: grid;
+  align-content: center;
+  gap: 0.9rem;
+}
+
+.pause-subtitle {
+  margin-bottom: 0.25rem;
+}
+
 .pulse-hint {
   display: inline-block;
   animation: pulseHint 1.5s steps(2, jump-none) infinite;
@@ -369,7 +420,8 @@ canvas {
 
   .feed-tip,
   .scoreboard,
-  .timer {
+  .timer,
+  .hud-actions {
     justify-self: center;
   }
 

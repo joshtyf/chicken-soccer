@@ -27,7 +27,7 @@ export function useGameLoop(canvasRef) {
     scoreLeft: 0,
     scoreRight: 0,
     gameTime: GAME_DURATION,
-    phase: 'menu', // 'menu' | 'playing' | 'goal' | 'gameover'
+    phase: 'menu', // 'menu' | 'playing' | 'paused' | 'goal' | 'gameover'
     goalTimer: 0,
     goalMessage: '',
     lastTime: 0,
@@ -98,6 +98,26 @@ export function useGameLoop(canvasRef) {
     resetMatch('menu');
   }, [resetMatch]);
 
+  const togglePause = useCallback(() => {
+    const s = gameState.current;
+    if (s.phase === 'playing') {
+      s.phase = 'paused';
+      setPhase('paused');
+      return;
+    }
+
+    if (s.phase === 'paused') {
+      s.phase = 'playing';
+      // Prevent a large delta-time jump after resuming.
+      s.lastTime = performance.now();
+      setPhase('playing');
+    }
+  }, []);
+
+  const quitToMenu = useCallback(() => {
+    resetMatch('menu');
+  }, [resetMatch]);
+
   // Click handler — enqueue clicks for the game loop to consume
   const handleCanvasClick = useCallback((e) => {
     const canvas = canvasRef.current;
@@ -135,6 +155,16 @@ export function useGameLoop(canvasRef) {
 
     canvas.addEventListener('click', handleCanvasClick);
     canvas.addEventListener('touchend', handleTouchEnd);
+
+    function handleKeyDown(event) {
+      if (event.key !== 'Escape') return;
+      const s = gameState.current;
+      if (s.phase !== 'playing' && s.phase !== 'paused') return;
+      event.preventDefault();
+      togglePause();
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
 
     function processInput(s) {
       const clicks = s.clickQueue.splice(0);
@@ -245,8 +275,9 @@ export function useGameLoop(canvasRef) {
       cancelAnimationFrame(gameState.current.animFrameId);
       canvas.removeEventListener('click', handleCanvasClick);
       canvas.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [canvasRef, handleCanvasClick, handleTouchEnd, resetAfterGoal]);
+  }, [canvasRef, handleCanvasClick, handleTouchEnd, resetAfterGoal, togglePause]);
 
   return {
     phase,
@@ -256,5 +287,7 @@ export function useGameLoop(canvasRef) {
     matchup,
     startGame,
     restartGame,
+    togglePause,
+    quitToMenu,
   };
 }
