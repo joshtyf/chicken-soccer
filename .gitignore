@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment/local overrides
+.env
+.env.*
+*.local
+
+# OS / editor artifacts
+.DS_Store
+.vscode/
