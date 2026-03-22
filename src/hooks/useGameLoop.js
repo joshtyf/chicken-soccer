@@ -6,6 +6,8 @@ import { Ball } from '../engine/ball';
 import { Chicken } from '../engine/chicken';
 import { FeedManager } from '../engine/feed';
 import { generateRandomOpponent, generateStarterChicken, resolveGameStats } from '../data/chickenModel';
+import { getFeedDef } from '../data/feedDefs';
+import { feedInventoryDB } from '../data/feedInventoryDB';
 
 const GAME_DURATION = 90;
 
@@ -35,6 +37,8 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
   const [displayTime, setDisplayTime] = useState(GAME_DURATION);
   const [goalMessage, setGoalMessage] = useState('');
   const [matchup, setMatchup] = useState(selectedMatchup || { playerChicken: null, opponentChicken: null });
+  const [selectedFeedType, setSelectedFeedType] = useState('basic');
+  const [feedCounts, setFeedCounts] = useState({ slowness: 0 });
   const lastDisplayedSecond = useRef(GAME_DURATION);
 
   const gameState = useRef({
@@ -53,6 +57,8 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     lastTime: 0,
     animFrameId: null,
     clickQueue: [],
+    selectedFeedType: 'basic',
+    feedCounts: { slowness: 0 },
   });
 
   const setupMatchup = useCallback((nextMatchup) => {
@@ -91,6 +97,8 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
 
   const resetMatch = useCallback(() => {
     const s = gameState.current;
+    const slownessCount = feedInventoryDB.getCount('slowness');
+
     s.phase = 'playing';
     s.scoreLeft = 0;
     s.scoreRight = 0;
@@ -101,12 +109,16 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     s.ball.reset();
     s.chickenLeft.resetPosition();
     s.chickenRight.resetPosition();
+    s.selectedFeedType = 'basic';
+    s.feedCounts = { slowness: slownessCount };
 
     lastDisplayedSecond.current = GAME_DURATION;
     setPhase('playing');
     setScores({ left: 0, right: 0 });
     setDisplayTime(GAME_DURATION);
     setGoalMessage('');
+    setSelectedFeedType('basic');
+    setFeedCounts({ slowness: slownessCount });
   }, []);
 
   useEffect(() => {
@@ -173,11 +185,30 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     canvas.addEventListener('touchend', handleTouchEnd);
 
     function handleKeyDown(event) {
-      if (event.key !== 'Escape') return;
       const s = gameState.current;
-      if (s.phase !== 'playing' && s.phase !== 'paused') return;
-      event.preventDefault();
-      togglePause();
+      if (event.key === 'Escape') {
+        if (s.phase !== 'playing' && s.phase !== 'paused') return;
+        event.preventDefault();
+        togglePause();
+        return;
+      }
+
+      if (s.phase !== 'playing' && s.phase !== 'paused' && s.phase !== 'goal') return;
+
+      if (event.key === '1') {
+        event.preventDefault();
+        s.selectedFeedType = 'basic';
+        setSelectedFeedType('basic');
+        return;
+      }
+
+      if (event.key === '2') {
+        const available = s.feedCounts.slowness;
+        if (available <= 0) return;
+        event.preventDefault();
+        s.selectedFeedType = 'slowness';
+        setSelectedFeedType('slowness');
+      }
     }
 
     document.addEventListener('keydown', handleKeyDown);
@@ -185,8 +216,30 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     function processInput(s) {
       const clicks = s.clickQueue.splice(0);
       for (const click of clicks) {
-        if (s.phase === 'playing') {
-          s.feedManager.place(click.x, click.y, 'player');
+        if (s.phase !== 'playing') continue;
+
+        const requestedType = s.selectedFeedType || 'basic';
+        const requestedDef = getFeedDef(requestedType);
+        let typeToPlace = requestedType;
+
+        if (requestedDef?.limited) {
+          const deducted = feedInventoryDB.deductCount(requestedType, 1);
+          if (!deducted) {
+            typeToPlace = 'basic';
+            s.selectedFeedType = 'basic';
+            setSelectedFeedType('basic');
+          } else {
+            const updatedCount = feedInventoryDB.getCount(requestedType);
+            s.feedCounts = { ...s.feedCounts, [requestedType]: updatedCount };
+            setFeedCounts(s.feedCounts);
+          }
+        }
+
+        const placed = s.feedManager.place(click.x, click.y, 'player', typeToPlace);
+        if (!placed && typeToPlace !== 'basic') {
+          const refundedCount = feedInventoryDB.addCount(typeToPlace, 1);
+          s.feedCounts = { ...s.feedCounts, [typeToPlace]: refundedCount };
+          setFeedCounts(s.feedCounts);
         }
       }
     }
@@ -297,6 +350,8 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     displayTime,
     goalMessage,
     matchup,
+    selectedFeedType,
+    feedCounts,
     togglePause,
     quitToMenu,
   };

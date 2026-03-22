@@ -12,10 +12,12 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 2. Click "Start Match" to go to the pre-match screen.
 3. Select your chicken and confirm to start the match.
 4. Click or tap on the pitch to throw feed.
-5. Nearby chickens may abandon the ball to chase feed.
-6. Use feed placement strategically to open scoring chances.
-7. Score more goals before the 90-second timer ends.
-8. Use the shop from the dashboard to buy new chickens with PP.
+5. Press `1` for basic feed (unlimited).
+6. Press `2` for slowness feed (limited inventory).
+7. Nearby chickens may abandon the ball to chase feed.
+8. Use feed placement strategically to open scoring chances.
+9. Score more goals before the 90-second timer ends.
+10. Use the shop from the dashboard to buy new chickens with PP.
 
 ## Economy and Rewards
 
@@ -40,6 +42,14 @@ The game now includes a daily chicken store and an in-game currency called Pok P
   - Name your chicken in the purchase modal
   - Confirm purchase to add chicken to your collection
 - Purchased listings are removed and cannot be bought again.
+
+## Consumable Feed
+
+- Basic feed is unlimited during matches.
+- Slowness feed is a consumable you buy from the shop for 2 PP per unit.
+- Slowness feed inventory persists in `localStorage` between matches.
+- The chicken that consumes slowness feed gets a temporary speed penalty.
+- Slowness duration is 3 seconds, then speed returns to normal.
 
 ## Chicken Collection
 
@@ -102,6 +112,8 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 │   ├── data/
 │   │   ├── chickenDB.js
 │   │   ├── chickenModel.js
+│   │   ├── feedDefs.js
+│   │   ├── feedInventoryDB.js
 │   │   ├── statDefs.js
 │   │   ├── playerDB.js
 │   │   ├── rewardLogic.js
@@ -158,6 +170,9 @@ npm run preview
   - Feed lasts 4 seconds
   - Attraction radius is 30px
   - Max 5 active feed piles per player
+  - Feed select keys: `1` basic, `2` slowness
+  - Basic feed is unlimited
+  - Slowness feed is consumed from inventory and applies a 3-second speed debuff on consume
 - Collection system:
   - One starter chicken is seeded automatically
   - Chickens have names, IDs, creation timestamps, and a stats object

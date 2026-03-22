@@ -6,7 +6,12 @@ function formatTime(totalSeconds) {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export default function GameHUD({ scores, displayTime, matchup, onPause }) {
+export default function GameHUD({
+  scores,
+  displayTime,
+  matchup,
+  onPause,
+}) {
   const playerChicken = matchup?.playerChicken;
   const opponentChicken = matchup?.opponentChicken;
 
@@ -20,7 +25,7 @@ export default function GameHUD({ scores, displayTime, matchup, onPause }) {
     >
       <div className="hud-top">
         <div className="hud-strip hud-main">
-          <p className="feed-tip">CLICK TO THROW FEED</p>
+          <p className="feed-tip">CLICK/TAP TO THROW FEED</p>
 
           <div className="scoreboard" aria-live="polite">
             <motion.span

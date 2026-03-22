@@ -46,6 +46,12 @@ body {
   aspect-ratio: 16 / 9;
 }
 
+.game-wrapper {
+  width: min(960px, 100vw - 2rem);
+  display: grid;
+  gap: 0.45rem;
+}
+
 .screen-page {
   width: min(960px, 100vw - 2rem);
   min-height: min(760px, calc(100vh - 2rem));
@@ -256,6 +262,69 @@ canvas {
   padding: 1.2rem 0.5rem;
 }
 
+.store-consumables {
+  border: 2px solid rgba(130, 200, 255, 0.3);
+  background: rgba(8, 14, 22, 0.56);
+  padding: 0.6rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.store-consumables-title {
+  font-size: clamp(0.52rem, 1.05vw, 0.64rem);
+  color: #bde7ff;
+  text-align: left;
+}
+
+.store-consumable-item {
+  border: 2px solid rgba(130, 200, 255, 0.2);
+  background: rgba(8, 15, 26, 0.7);
+  padding: 0.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.store-consumable-main {
+  display: grid;
+  gap: 0.35rem;
+  text-align: left;
+}
+
+.store-consumable-name {
+  font-size: clamp(0.5rem, 1vw, 0.62rem);
+  color: #d3f0ff;
+}
+
+.store-consumable-copy,
+.store-consumable-stock {
+  font-size: clamp(0.45rem, 0.9vw, 0.56rem);
+  color: var(--text-muted);
+}
+
+.store-consumable-actions {
+  display: grid;
+  justify-items: end;
+  gap: 0.38rem;
+}
+
+.store-feed-buy {
+  min-width: 90px;
+  padding: 0.52rem 0.75rem;
+  border: 2px solid rgba(130, 200, 255, 0.55);
+  background: linear-gradient(180deg, rgba(130, 200, 255, 0.22), rgba(130, 200, 255, 0.08));
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: clamp(0.47rem, 0.95vw, 0.58rem);
+  cursor: pointer;
+}
+
+.store-feed-buy:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .chicken-card {
   width: 100%;
   border: 2px solid rgba(255, 255, 255, 0.22);
@@ -439,6 +508,41 @@ canvas {
   text-align: center;
 }
 
+.feed-selector-bar {
+  width: 100%;
+  min-height: 1.9rem;
+  padding: 0.3rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.feed-slot {
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: rgba(12, 18, 28, 0.75);
+  color: var(--text-muted);
+  font-size: clamp(0.42rem, 0.85vw, 0.54rem);
+  padding: 0.34rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.feed-slot--active {
+  border-color: rgba(255, 220, 124, 0.8);
+  color: #ffe8aa;
+  box-shadow: 0 0 0 2px rgba(255, 208, 94, 0.14);
+}
+
+.feed-slot--empty {
+  opacity: 0.55;
+}
+
+.feed-count {
+  color: #9ecdf2;
+}
+
 .goal-banner {
   width: min(84%, 680px);
   padding: 0.8rem 1rem;
@@ -571,6 +675,19 @@ canvas {
     justify-content: center;
   }
 
+  .store-consumable-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .store-consumable-actions {
+    justify-items: stretch;
+  }
+
+  .store-feed-buy {
+    width: 100%;
+  }
+
   .picker-title {
     text-align: center;
   }
@@ -607,6 +724,14 @@ canvas {
 
   .game-shell {
     width: min(960px, 100vw - 1rem);
+  }
+
+  .game-wrapper {
+    width: min(960px, 100vw - 1rem);
+  }
+
+  .feed-selector-bar {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { shopLogic } from '../data/shopLogic';
 import { playerDB } from '../data/playerDB';
+import { feedInventoryDB } from '../data/feedInventoryDB';
 
 function getPurchaseErrorMessage(reason) {
   if (reason === 'insufficient_funds') return 'NOT ENOUGH PP';
   if (reason === 'missing_name') return 'PLEASE ENTER A NAME';
+  if (reason === 'feed_not_found') return 'ITEM NOT FOUND';
+  if (reason === 'feed_not_purchasable') return 'ITEM NOT PURCHASABLE';
   return 'PURCHASE FAILED';
 }
 
@@ -14,6 +17,7 @@ export function useShop(onBalanceChange) {
   const [activeListing, setActiveListing] = useState(null);
   const [shopDate, setShopDate] = useState('');
   const [errorText, setErrorText] = useState('');
+  const [feedInventory, setFeedInventory] = useState({ slowness: 0 });
 
   useEffect(() => {
     const shop = shopLogic.getDailyShop();
@@ -21,6 +25,7 @@ export function useShop(onBalanceChange) {
     setListings(shop.listings);
     setShopDate(shop.dateKey);
     setBalance(nextBalance);
+    setFeedInventory({ slowness: feedInventoryDB.getCount('slowness') });
     onBalanceChange?.(nextBalance);
   }, [onBalanceChange]);
 
@@ -55,14 +60,33 @@ export function useShop(onBalanceChange) {
     setActiveListing(null);
   }
 
+  function buyFeed(feedKey) {
+    const result = shopLogic.purchaseFeed(feedKey, 1);
+
+    if (!result.success) {
+      setErrorText(getPurchaseErrorMessage(result.reason));
+      return;
+    }
+
+    setBalance(result.balance);
+    onBalanceChange?.(result.balance);
+    setFeedInventory((current) => ({
+      ...current,
+      [feedKey]: result.newCount,
+    }));
+    setErrorText('PURCHASE COMPLETE');
+  }
+
   return {
     balance,
     listings,
     activeListing,
     shopDate,
     errorText,
+    feedInventory,
     openNameModal,
     confirmPurchase,
     cancelPurchase,
+    buyFeed,
   };
 }

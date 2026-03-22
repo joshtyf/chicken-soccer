@@ -2,6 +2,7 @@
 
 import { PITCH, LEFT_GOAL, RIGHT_GOAL } from './pitch.js';
 import { dist, angleBetween, clamp, randomRange, lerpAngle } from './utils.js';
+import { getFeedDef } from '../data/feedDefs.js';
 
 const CHICKEN_RADIUS = 5;
 const CHICKEN_SPEED = 50;
@@ -44,6 +45,9 @@ export class Chicken {
     this.territoryMaxX = team === 'left' ? PITCH.x + PITCH.w * 0.75 : PITCH.x + PITCH.w;
 
     this.speed = Number.isFinite(gameStats.speed) ? gameStats.speed : CHICKEN_SPEED;
+    this.baseSpeed = this.speed;
+    this.slowTimer = 0;
+    this.slowMultiplier = 1;
   }
 
   _getChaseTarget(ball) {
@@ -76,6 +80,16 @@ export class Chicken {
     this.animTimer += dt;
     this.bobble = Math.sin(this.animTimer * 8) * 0.5;
 
+    if (this.slowTimer > 0) {
+      this.slowTimer -= dt;
+      if (this.slowTimer <= 0) {
+        this.slowTimer = 0;
+        this.slowMultiplier = 1;
+      }
+    }
+
+    const effectiveSpeed = this.baseSpeed * this.slowMultiplier;
+
     const nearestFeed = feedManager.getClosestFeed(this);
 
     if (this.state === STATE_CELEBRATE) {
@@ -84,21 +98,28 @@ export class Chicken {
     } else if (nearestFeed) {
       this.state = STATE_DISTRACTED;
       const angle = angleBetween(this, nearestFeed);
-      this.vx = Math.cos(angle) * this.speed * DISTRACTION_WEIGHT;
-      this.vy = Math.sin(angle) * this.speed * DISTRACTION_WEIGHT;
+      this.vx = Math.cos(angle) * effectiveSpeed * DISTRACTION_WEIGHT;
+      this.vy = Math.sin(angle) * effectiveSpeed * DISTRACTION_WEIGHT;
       this.facing = this.vx > 0 ? 1 : -1;
 
       if (dist(this, nearestFeed) < EAT_RANGE) {
+        const consumedType = nearestFeed.type;
         feedManager.consume(nearestFeed);
         this.pecking = true;
         this.peckTimer = 0.3;
+
+        const feedDef = getFeedDef(consumedType);
+        if (feedDef?.effect?.type === 'slowness') {
+          this.slowTimer = feedDef.effect.duration;
+          this.slowMultiplier = feedDef.effect.speedMultiplier;
+        }
       }
     } else {
       this.state = STATE_CHASE_BALL;
       const target = this._getChaseTarget(ball);
       const toTarget = angleBetween(this, target);
-      this.vx = Math.cos(toTarget) * this.speed;
-      this.vy = Math.sin(toTarget) * this.speed;
+      this.vx = Math.cos(toTarget) * effectiveSpeed;
+      this.vy = Math.sin(toTarget) * effectiveSpeed;
       this.facing = this.vx > 0 ? 1 : -1;
     }
 
@@ -131,6 +152,8 @@ export class Chicken {
     this.vx = 0;
     this.vy = 0;
     this.state = STATE_IDLE;
+    this.slowTimer = 0;
+    this.slowMultiplier = 1;
   }
 
   draw(ctx) {
@@ -182,6 +205,14 @@ export class Chicken {
     // Comb
     ctx.fillStyle = '#e74c3c';
     ctx.fillRect(px + (f > 0 ? 2 : -3), py - 5, 2, 2);
+
+    // Slowness debuff indicator
+    if (this.slowTimer > 0) {
+      ctx.fillStyle = '#74c8ff';
+      ctx.fillRect(px - 2, py - 7, 1, 1);
+      ctx.fillRect(px, py - 8, 1, 1);
+      ctx.fillRect(px + 2, py - 7, 1, 1);
+    }
 
     // Tail
     ctx.fillStyle = '#ffeaa7';

@@ -1,6 +1,8 @@
 import { chickenDB } from './chickenDB';
 import { STAT_DEFS } from './statDefs';
 import { playerDB } from './playerDB';
+import { getFeedDef } from './feedDefs';
+import { feedInventoryDB } from './feedInventoryDB';
 
 const SHOP_STORAGE_KEY = 'daily_shop_state_v1';
 const MIN_SHOP_CHICKENS = 3;
@@ -190,6 +192,35 @@ export class ShopLogic {
       balance: nextBalance,
       purchased: listing,
       listings: nextListings,
+    };
+  }
+
+  purchaseFeed(feedKey, quantity = 1) {
+    const feedDef = getFeedDef(feedKey);
+    if (!feedDef) {
+      return { success: false, reason: 'feed_not_found' };
+    }
+
+    if (!feedDef.limited || !Number.isFinite(feedDef.price)) {
+      return { success: false, reason: 'feed_not_purchasable' };
+    }
+
+    const safeQuantity = Math.max(1, Math.floor(Number(quantity) || 1));
+    const totalCost = feedDef.price * safeQuantity;
+    const nextBalance = playerDB.deductBalance(totalCost);
+
+    if (nextBalance === null) {
+      return { success: false, reason: 'insufficient_funds' };
+    }
+
+    const newCount = feedInventoryDB.addCount(feedKey, safeQuantity);
+
+    return {
+      success: true,
+      balance: nextBalance,
+      feedKey,
+      quantity: safeQuantity,
+      newCount,
     };
   }
 }
