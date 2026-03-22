@@ -9,12 +9,12 @@ import { generateRandomOpponent, generateStarterChicken, resolveGameStats } from
 
 const GAME_DURATION = 90;
 
-export function useGameLoop(canvasRef) {
-  const [phase, setPhase] = useState('menu');
+export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, onQuit } = {}) {
+  const [phase, setPhase] = useState('playing');
   const [scores, setScores] = useState({ left: 0, right: 0 });
   const [displayTime, setDisplayTime] = useState(GAME_DURATION);
   const [goalMessage, setGoalMessage] = useState('');
-  const [matchup, setMatchup] = useState({ playerChicken: null, opponentChicken: null });
+  const [matchup, setMatchup] = useState(selectedMatchup || { playerChicken: null, opponentChicken: null });
   const lastDisplayedSecond = useRef(GAME_DURATION);
 
   const gameState = useRef({
@@ -27,7 +27,7 @@ export function useGameLoop(canvasRef) {
     scoreLeft: 0,
     scoreRight: 0,
     gameTime: GAME_DURATION,
-    phase: 'menu', // 'menu' | 'playing' | 'paused' | 'goal' | 'gameover'
+    phase: 'playing', // 'playing' | 'paused' | 'goal' | 'gameover'
     goalTimer: 0,
     goalMessage: '',
     lastTime: 0,
@@ -35,11 +35,11 @@ export function useGameLoop(canvasRef) {
     clickQueue: [],
   });
 
-  const setupMatchup = useCallback((playerChickenInput) => {
+  const setupMatchup = useCallback((nextMatchup) => {
     const s = gameState.current;
 
-    const playerChicken = playerChickenInput || generateStarterChicken();
-    const opponentChicken = generateRandomOpponent();
+    const playerChicken = nextMatchup?.playerChicken || generateStarterChicken();
+    const opponentChicken = nextMatchup?.opponentChicken || generateRandomOpponent();
 
     s.playerChicken = playerChicken;
     s.opponentChicken = opponentChicken;
@@ -69,9 +69,9 @@ export function useGameLoop(canvasRef) {
     s.feedManager.reset();
   }, []);
 
-  const resetMatch = useCallback((nextPhase) => {
+  const resetMatch = useCallback(() => {
     const s = gameState.current;
-    s.phase = nextPhase;
+    s.phase = 'playing';
     s.scoreLeft = 0;
     s.scoreRight = 0;
     s.gameTime = GAME_DURATION;
@@ -83,20 +83,16 @@ export function useGameLoop(canvasRef) {
     s.chickenRight.resetPosition();
 
     lastDisplayedSecond.current = GAME_DURATION;
-    setPhase(nextPhase);
+    setPhase('playing');
     setScores({ left: 0, right: 0 });
     setDisplayTime(GAME_DURATION);
     setGoalMessage('');
   }, []);
 
-  const startGame = useCallback((playerChicken) => {
-    setupMatchup(playerChicken);
-    resetMatch('playing');
-  }, [resetMatch, setupMatchup]);
-
-  const restartGame = useCallback(() => {
-    resetMatch('menu');
-  }, [resetMatch]);
+  useEffect(() => {
+    setupMatchup(selectedMatchup);
+    resetMatch();
+  }, [resetMatch, selectedMatchup, setupMatchup]);
 
   const togglePause = useCallback(() => {
     const s = gameState.current;
@@ -115,8 +111,8 @@ export function useGameLoop(canvasRef) {
   }, []);
 
   const quitToMenu = useCallback(() => {
-    resetMatch('menu');
-  }, [resetMatch]);
+    onQuit?.();
+  }, [onQuit]);
 
   // Click handler — enqueue clicks for the game loop to consume
   const handleCanvasClick = useCallback((e) => {
@@ -189,6 +185,13 @@ export function useGameLoop(canvasRef) {
           s.phase = 'gameover';
           setPhase('gameover');
           setDisplayTime(0);
+          onMatchEnd?.({
+            scores: { left: s.scoreLeft, right: s.scoreRight },
+            matchup: {
+              playerChicken: s.playerChicken,
+              opponentChicken: s.opponentChicken,
+            },
+          });
           return;
         }
       }
@@ -277,7 +280,7 @@ export function useGameLoop(canvasRef) {
       canvas.removeEventListener('touchend', handleTouchEnd);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [canvasRef, handleCanvasClick, handleTouchEnd, resetAfterGoal, togglePause]);
+  }, [canvasRef, handleCanvasClick, handleTouchEnd, onMatchEnd, resetAfterGoal, togglePause]);
 
   return {
     phase,
@@ -285,8 +288,6 @@ export function useGameLoop(canvasRef) {
     displayTime,
     goalMessage,
     matchup,
-    startGame,
-    restartGame,
     togglePause,
     quitToMenu,
   };

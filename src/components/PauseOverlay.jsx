@@ -39,7 +39,7 @@ export default function PauseOverlay({ onResume, onMainMenu }) {
           whileTap={{ scale: 0.97 }}
           onClick={onMainMenu}
         >
-          MAIN MENU
+          DASHBOARD
         </motion.button>
       </motion.div>
     </motion.div>

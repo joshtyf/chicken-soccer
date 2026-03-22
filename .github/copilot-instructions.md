@@ -18,12 +18,14 @@ src/
   App.jsx                     — Top-level App component
   index.css                   — Pixelated theme, retro styling
   components/
+    DashboardScreen.jsx       — Dashboard: chicken collection, start match
+    PreMatchScreen.jsx        — Pre-match: select chicken, confirm
     ChickenCard.jsx           — Selectable chicken card for menu collection UI
     GameCanvas.jsx            — Canvas element with ref, renders the game
     GameHUD.jsx               — Score, timer, and current matchup metadata
     GameOverScreen.jsx        — End-of-match overlay
     GoalOverlay.jsx           — Goal announcement overlay
-    MenuScreen.jsx            — Main menu and chicken selection UI
+    PauseOverlay.jsx          — Pause overlay
   data/
     statDefs.js               — Stat metadata, sanitization, and game-value mapping
     chickenModel.js           — Chicken factories, normalization, and opponent generation
@@ -39,9 +41,11 @@ src/
 ```
 
 ## Game Mechanics
+- The first screen is your dashboard, showing your chicken collection and stats
+- Click "Start Match" to go to the pre-match screen
+- Select your chicken and confirm to start a match against a random opponent
 - Chickens move autonomously toward the ball using simple AI
 - Players click/tap to throw feed onto the pitch
-- Players select a chicken from their collection before the match starts
 - Feed has an attraction radius — nearby chickens are pulled toward it
 - Feed decays after a few seconds
 - Chickens resume chasing the ball once feed is consumed or expires

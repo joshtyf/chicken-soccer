@@ -2,15 +2,17 @@
 
 A fast-paced 1v1 chicken soccer game built with React and Canvas 2D.
 
-Two AI-controlled chickens battle it out on the pitch while players influence the match by throwing chicken feed to distract opponents. Each player now owns a small chicken collection, selects a chicken before kickoff, and brings that chicken's stats into the match.
+The first screen is your dashboard, where you see your chicken collection and their stats. Start a match to pick your chicken, then play against a random AI opponent. You influence the match by throwing chicken feed to distract the opponent. Each chicken brings its stats into the match.
 
 ## How To Play
 
-1. Pick a chicken from your collection on the menu.
-2. Click or tap on the pitch to throw feed.
-3. Nearby chickens may abandon the ball to chase feed.
-4. Use feed placement strategically to open scoring chances.
-5. Score more goals before the 90-second timer ends.
+1. View your chicken collection on the dashboard.
+2. Click "Start Match" to go to the pre-match screen.
+3. Select your chicken and confirm to start the match.
+4. Click or tap on the pitch to throw feed.
+5. Nearby chickens may abandon the ball to chase feed.
+6. Use feed placement strategically to open scoring chances.
+7. Score more goals before the 90-second timer ends.
 
 ## Chicken Collection
 
@@ -49,12 +51,14 @@ Two AI-controlled chickens battle it out on the pitch while players influence th
 │   ├── index.css
 │   ├── main.jsx
 │   ├── components/
+│   │   ├── DashboardScreen.jsx
+│   │   ├── PreMatchScreen.jsx
 │   │   ├── ChickenCard.jsx
 │   │   ├── GameCanvas.jsx
 │   │   ├── GameHUD.jsx
 │   │   ├── GoalOverlay.jsx
 │   │   ├── GameOverScreen.jsx
-│   │   └── MenuScreen.jsx
+│   │   └── PauseOverlay.jsx
 │   ├── data/
 │   │   ├── chickenDB.js
 │   │   ├── chickenModel.js

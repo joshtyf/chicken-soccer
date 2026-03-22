@@ -10,12 +10,14 @@ function getResult(scores) {
   return { text: 'DRAW!', className: '' };
 }
 
-export default function GameOverScreen({ scores, onRestart }) {
+export default function GameOverScreen({ scores, matchup, onContinue }) {
   const result = getResult(scores);
+  const playerChicken = matchup?.playerChicken;
+  const opponentChicken = matchup?.opponentChicken;
 
   return (
     <motion.div
-      className="screen-overlay"
+      className="screen-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -48,14 +50,18 @@ export default function GameOverScreen({ scores, onRestart }) {
           {result.text}
         </motion.p>
 
+        <p className="screen-subtitle">
+          YOU: {playerChicken?.name || '---'} VS CPU: {opponentChicken?.name || '---'}
+        </p>
+
         <motion.button
           type="button"
           className="ui-button"
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          onClick={onRestart}
+          onClick={onContinue}
         >
-          PLAY AGAIN
+          BACK TO DASHBOARD
         </motion.button>
       </motion.div>
     </motion.div>

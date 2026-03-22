@@ -2,10 +2,11 @@ import { motion } from 'framer-motion';
 import { useEffect, useMemo, useState } from 'react';
 import ChickenCard from './ChickenCard';
 import { chickenDB } from '../data/chickenDB';
+import { generateRandomOpponent } from '../data/chickenModel';
 
-const titleWords = ['CHICKEN', 'SOCCER'];
+const titleWords = ['PRE', 'MATCH'];
 
-export default function MenuScreen({ onStart }) {
+export default function PreMatchScreen({ onBack, onConfirm }) {
   const [chickens, setChickens] = useState([]);
   const [selectedChickenId, setSelectedChickenId] = useState('');
 
@@ -26,7 +27,7 @@ export default function MenuScreen({ onStart }) {
 
   return (
     <motion.div
-      className="screen-overlay"
+      className="screen-page"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -39,7 +40,7 @@ export default function MenuScreen({ onStart }) {
         exit={{ scale: 1.05, opacity: 0 }}
         transition={{ type: 'spring', stiffness: 220, damping: 20 }}
       >
-        <h1 className="screen-title" aria-label="Chicken Soccer">
+        <h1 className="screen-title" aria-label="Pre match">
           {titleWords.map((word) => (
             <div key={word}>
               {word.split('').map((char, index) => (
@@ -58,9 +59,9 @@ export default function MenuScreen({ onStart }) {
         </h1>
 
         <p className="screen-subtitle">
-          THROW FEED TO DISTRACT CHICKENS.
+          CHOOSE YOUR STARTING CHICKEN.
           <br />
-          SCORE BEFORE THE CLOCK HITS ZERO.
+          YOU WILL FACE A RANDOM OPPONENT.
         </p>
 
         <section className="chicken-picker" aria-label="Choose your chicken">
@@ -77,16 +78,28 @@ export default function MenuScreen({ onStart }) {
           </div>
         </section>
 
-        <motion.button
-          type="button"
-          className="ui-button pulse-hint"
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={() => onStart(selectedChicken)}
-          disabled={!canStart}
-        >
-          CLICK TO START
-        </motion.button>
+        <div className="action-row">
+          <motion.button
+            type="button"
+            className="ui-button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={onBack}
+          >
+            BACK
+          </motion.button>
+
+          <motion.button
+            type="button"
+            className="ui-button pulse-hint"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => onConfirm(selectedChicken, generateRandomOpponent())}
+            disabled={!canStart}
+          >
+            START MATCH
+          </motion.button>
+        </div>
       </motion.div>
     </motion.div>
   );

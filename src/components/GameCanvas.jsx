@@ -1,23 +1,17 @@
 import { useRef } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useGameLoop } from '../hooks/useGameLoop';
-import MenuScreen from './MenuScreen';
 import GameHUD from './GameHUD';
 import GoalOverlay from './GoalOverlay';
-import GameOverScreen from './GameOverScreen';
 import PauseOverlay from './PauseOverlay';
 
-export default function GameCanvas() {
+export default function GameCanvas({ matchup, onMatchEnd, onQuit }) {
   const canvasRef = useRef(null);
-  const gameUi = useGameLoop(canvasRef);
+  const gameUi = useGameLoop(canvasRef, { matchup, onMatchEnd, onQuit });
 
   return (
     <div className="game-shell">
       <canvas ref={canvasRef} />
-
-      <AnimatePresence>
-        {gameUi.phase === 'menu' && <MenuScreen onStart={gameUi.startGame} />}
-      </AnimatePresence>
 
       <AnimatePresence>
         {(gameUi.phase === 'playing' || gameUi.phase === 'goal' || gameUi.phase === 'paused') && (
@@ -37,12 +31,6 @@ export default function GameCanvas() {
       <AnimatePresence>
         {gameUi.phase === 'paused' && (
           <PauseOverlay onResume={gameUi.togglePause} onMainMenu={gameUi.quitToMenu} />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {gameUi.phase === 'gameover' && (
-          <GameOverScreen scores={gameUi.scores} onRestart={gameUi.restartGame} />
         )}
       </AnimatePresence>
     </div>
