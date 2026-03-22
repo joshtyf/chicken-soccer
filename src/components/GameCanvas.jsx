@@ -20,7 +20,11 @@ export default function GameCanvas() {
 
       <AnimatePresence>
         {(gameUi.phase === 'playing' || gameUi.phase === 'goal') && (
-          <GameHUD scores={gameUi.scores} displayTime={gameUi.displayTime} />
+          <GameHUD
+            scores={gameUi.scores}
+            displayTime={gameUi.displayTime}
+            matchup={gameUi.matchup}
+          />
         )}
       </AnimatePresence>
 

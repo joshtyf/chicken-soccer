@@ -1,8 +1,29 @@
 import { motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import ChickenCard from './ChickenCard';
+import { chickenDB } from '../data/chickenDB';
 
 const titleWords = ['CHICKEN', 'SOCCER'];
 
 export default function MenuScreen({ onStart }) {
+  const [chickens, setChickens] = useState([]);
+  const [selectedChickenId, setSelectedChickenId] = useState('');
+
+  useEffect(() => {
+    const seededChickens = chickenDB.init();
+    setChickens(seededChickens);
+    if (seededChickens[0]) {
+      setSelectedChickenId(seededChickens[0].id);
+    }
+  }, []);
+
+  const selectedChicken = useMemo(
+    () => chickens.find((chicken) => chicken.id === selectedChickenId) || null,
+    [chickens, selectedChickenId]
+  );
+
+  const canStart = Boolean(selectedChicken);
+
   return (
     <motion.div
       className="screen-overlay"
@@ -42,12 +63,27 @@ export default function MenuScreen({ onStart }) {
           SCORE BEFORE THE CLOCK HITS ZERO.
         </p>
 
+        <section className="chicken-picker" aria-label="Choose your chicken">
+          <p className="picker-title">SELECT YOUR CHICKEN</p>
+          <div className="chicken-list">
+            {chickens.map((chicken) => (
+              <ChickenCard
+                key={chicken.id}
+                chicken={chicken}
+                selected={chicken.id === selectedChickenId}
+                onSelect={setSelectedChickenId}
+              />
+            ))}
+          </div>
+        </section>
+
         <motion.button
           type="button"
           className="ui-button pulse-hint"
           whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
-          onClick={onStart}
+          onClick={() => onStart(selectedChicken)}
+          disabled={!canStart}
         >
           CLICK TO START
         </motion.button>

@@ -16,7 +16,7 @@ const STATE_CELEBRATE = 'celebrate';
 const STATE_IDLE = 'idle';
 
 export class Chicken {
-  constructor(team, startX, startY) {
+  constructor(team, startX, startY, gameStats = {}) {
     this.team = team;
     this.homeX = startX;
     this.homeY = startY;
@@ -31,6 +31,8 @@ export class Chicken {
     this.bobble = 0;
     this.pecking = false;
     this.peckTimer = 0;
+
+    this.speed = Number.isFinite(gameStats.speed) ? gameStats.speed : CHICKEN_SPEED;
   }
 
   update(dt, ball, feedManager) {
@@ -45,8 +47,8 @@ export class Chicken {
     } else if (nearestFeed) {
       this.state = STATE_DISTRACTED;
       const angle = angleBetween(this, nearestFeed);
-      this.vx = Math.cos(angle) * CHICKEN_SPEED * DISTRACTION_WEIGHT;
-      this.vy = Math.sin(angle) * CHICKEN_SPEED * DISTRACTION_WEIGHT;
+      this.vx = Math.cos(angle) * this.speed * DISTRACTION_WEIGHT;
+      this.vy = Math.sin(angle) * this.speed * DISTRACTION_WEIGHT;
       this.facing = this.vx > 0 ? 1 : -1;
 
       if (dist(this, nearestFeed) < EAT_RANGE) {
@@ -66,8 +68,8 @@ export class Chicken {
       }
 
       const toTarget = angleBetween(this, { x: targetX, y: targetY });
-      this.vx = Math.cos(toTarget) * CHICKEN_SPEED;
-      this.vy = Math.sin(toTarget) * CHICKEN_SPEED;
+      this.vx = Math.cos(toTarget) * this.speed;
+      this.vy = Math.sin(toTarget) * this.speed;
       this.facing = this.vx > 0 ? 1 : -1;
     }
 

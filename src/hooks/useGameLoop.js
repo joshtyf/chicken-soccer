@@ -5,6 +5,7 @@ import { WORLD_W, WORLD_H, PITCH, drawPitch, isInLeftGoal, isInRightGoal } from 
 import { Ball } from '../engine/ball';
 import { Chicken } from '../engine/chicken';
 import { FeedManager } from '../engine/feed';
+import { generateRandomOpponent, generateStarterChicken, resolveGameStats } from '../data/chickenModel';
 
 const GAME_DURATION = 90;
 
@@ -13,6 +14,7 @@ export function useGameLoop(canvasRef) {
   const [scores, setScores] = useState({ left: 0, right: 0 });
   const [displayTime, setDisplayTime] = useState(GAME_DURATION);
   const [goalMessage, setGoalMessage] = useState('');
+  const [matchup, setMatchup] = useState({ playerChicken: null, opponentChicken: null });
   const lastDisplayedSecond = useRef(GAME_DURATION);
 
   const gameState = useRef({
@@ -20,6 +22,8 @@ export function useGameLoop(canvasRef) {
     chickenLeft: new Chicken('left', PITCH.x + 40, PITCH.y + PITCH.h / 2),
     chickenRight: new Chicken('right', PITCH.x + PITCH.w - 40, PITCH.y + PITCH.h / 2),
     feedManager: new FeedManager(),
+    playerChicken: null,
+    opponentChicken: null,
     scoreLeft: 0,
     scoreRight: 0,
     gameTime: GAME_DURATION,
@@ -30,6 +34,32 @@ export function useGameLoop(canvasRef) {
     animFrameId: null,
     clickQueue: [],
   });
+
+  const setupMatchup = useCallback((playerChickenInput) => {
+    const s = gameState.current;
+
+    const playerChicken = playerChickenInput || generateStarterChicken();
+    const opponentChicken = generateRandomOpponent();
+
+    s.playerChicken = playerChicken;
+    s.opponentChicken = opponentChicken;
+
+    s.chickenLeft = new Chicken(
+      'left',
+      PITCH.x + 40,
+      PITCH.y + PITCH.h / 2,
+      resolveGameStats(playerChicken)
+    );
+
+    s.chickenRight = new Chicken(
+      'right',
+      PITCH.x + PITCH.w - 40,
+      PITCH.y + PITCH.h / 2,
+      resolveGameStats(opponentChicken)
+    );
+
+    setMatchup({ playerChicken, opponentChicken });
+  }, []);
 
   const resetAfterGoal = useCallback(() => {
     const s = gameState.current;
@@ -59,9 +89,10 @@ export function useGameLoop(canvasRef) {
     setGoalMessage('');
   }, []);
 
-  const startGame = useCallback(() => {
+  const startGame = useCallback((playerChicken) => {
+    setupMatchup(playerChicken);
     resetMatch('playing');
-  }, [resetMatch]);
+  }, [resetMatch, setupMatchup]);
 
   const restartGame = useCallback(() => {
     resetMatch('menu');
@@ -215,13 +246,14 @@ export function useGameLoop(canvasRef) {
       canvas.removeEventListener('click', handleCanvasClick);
       canvas.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [canvasRef, handleCanvasClick, handleTouchEnd, startGame, resetAfterGoal]);
+  }, [canvasRef, handleCanvasClick, handleTouchEnd, resetAfterGoal]);
 
   return {
     phase,
     scores,
     displayTime,
     goalMessage,
+    matchup,
     startGame,
     restartGame,
   };

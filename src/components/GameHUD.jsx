@@ -6,7 +6,10 @@ function formatTime(totalSeconds) {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
-export default function GameHUD({ scores, displayTime }) {
+export default function GameHUD({ scores, displayTime, matchup }) {
+  const playerChicken = matchup?.playerChicken;
+  const opponentChicken = matchup?.opponentChicken;
+
   return (
     <motion.div
       className="hud"
@@ -42,6 +45,18 @@ export default function GameHUD({ scores, displayTime }) {
           </div>
 
           <p className="timer">{formatTime(displayTime)}</p>
+        </div>
+      </div>
+
+      <div className="hud-bottom">
+        <div className="hud-strip hud-vs">
+          <p className="team-red matchup-line">
+            YOU: {playerChicken?.name || '---'} (SPD {Math.round(playerChicken?.stats?.speed || 0)})
+          </p>
+          <p className="matchup-separator">VS</p>
+          <p className="team-blue matchup-line">
+            CPU: {opponentChicken?.name || '---'} (SPD {Math.round(opponentChicken?.stats?.speed || 0)})
+          </p>
         </div>
       </div>
     </motion.div>
