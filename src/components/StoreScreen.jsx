@@ -53,9 +53,9 @@ export default function StoreScreen({ onBack, onBalanceChange }) {
           whileHover={{ y: -1 }}
           whileTap={{ scale: 0.98 }}
           className={[
-            'relative overflow-hidden border-2 px-[0.65rem] py-[0.52rem] text-[clamp(0.5rem,1vw,0.62rem)] transition-colors duration-150',
+            'relative overflow-hidden border-2 px-[0.65rem] py-[0.52rem] text-[clamp(0.5rem,1vw,0.62rem)] transition-[border-color,background-color,box-shadow,color] duration-150',
             activeTab === 'chickens'
-              ? 'border-[rgba(255,224,139,0.82)] bg-[rgba(61,46,7,0.8)] text-[#ffe8aa]'
+              ? 'active-selection'
               : 'border-white/22 bg-[rgba(8,14,21,0.55)] text-text-muted hover:border-white/35 hover:text-text-main',
           ].join(' ')}
         >

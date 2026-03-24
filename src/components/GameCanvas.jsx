@@ -22,9 +22,7 @@ function FeedSelector({ selectedFeedType, feedCounts, locked }) {
           locked
             ? 'border-white/8 bg-[rgba(12,18,28,0.75)] text-[rgba(222,236,244,0.62)]'
             : 'border-white/16 bg-[rgba(12,18,28,0.75)] text-text-muted',
-          !locked && selectedFeedType === 'basic'
-            ? 'border-[rgba(255,220,124,0.8)] text-[#ffe8aa] shadow-[0_0_0_2px_rgba(255,208,94,0.14)]'
-            : '',
+          !locked && selectedFeedType === 'basic' ? 'active-selection' : '',
         ].filter(Boolean).join(' ')}
       >
         [1] BASIC FEED <span className="text-[#9ecdf2]">INFINITY</span>
@@ -35,9 +33,7 @@ function FeedSelector({ selectedFeedType, feedCounts, locked }) {
           locked
             ? 'border-white/8 bg-[rgba(12,18,28,0.75)] text-[rgba(222,236,244,0.62)]'
             : 'border-white/16 bg-[rgba(12,18,28,0.75)] text-text-muted',
-          !locked && selectedFeedType === 'slowness'
-            ? 'border-[rgba(255,220,124,0.8)] text-[#ffe8aa] shadow-[0_0_0_2px_rgba(255,208,94,0.14)]'
-            : '',
+          !locked && selectedFeedType === 'slowness' ? 'active-selection' : '',
           slowCount <= 0 ? 'opacity-[0.55]' : '',
         ].filter(Boolean).join(' ')}
       >

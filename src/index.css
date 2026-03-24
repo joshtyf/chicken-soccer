@@ -150,6 +150,20 @@
     box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.2);
   }
 
+  /* ── Unified active-selection indicator ────────────────────────────────────
+     Apply to any selectable option (chicken card, tab, feed slot, etc.) when
+     it is the currently selected/active item. Provides a consistent golden
+     glow across the entire application.
+     ────────────────────────────────────────────────────────────────────── */
+  .active-selection {
+    border-color: rgba(255, 225, 120, 1);
+    background-color: rgba(58, 44, 6, 0.85);
+    color: #ffe8aa;
+    box-shadow:
+      0 0 0 2px rgba(255, 208, 94, 0.4),
+      0 0 22px rgba(255, 200, 80, 0.2);
+  }
+
   .mode-card {
     transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
   }

@@ -5,9 +5,7 @@ export default function ChickenCard({ chicken, selected, onSelect }) {
   const isSelectable = typeof onSelect === 'function';
   const classes = [
     'relative w-full border-2 border-white/22 bg-[rgba(10,16,24,0.76)] px-[0.6rem] py-[0.6rem] text-left text-text-main transition-[border-color,background-color,box-shadow] duration-150',
-    selected
-      ? 'border-[rgba(255,225,120,1)] bg-[rgba(58,44,6,0.85)] shadow-[0_0_0_2px_rgba(255,208,94,0.4),0_0_22px_rgba(255,200,80,0.2)]'
-      : 'hover:border-white/40',
+    selected ? 'active-selection' : 'hover:border-white/40',
     isSelectable ? 'cursor-pointer' : 'cursor-default',
     'max-[720px]:px-[0.55rem] max-[720px]:py-[0.55rem]',
   ].filter(Boolean).join(' ');
