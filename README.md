@@ -34,6 +34,7 @@ The game now includes a daily chicken store and an in-game currency called Pok P
 ## Daily Store
 
 - The store is accessible from the dashboard via the SHOP button.
+- The store has separate tabs for CHICKENS and CONSUMABLES.
 - Store inventory rotates daily using date-seeded generation.
 - Daily inventory size is randomized between 3 and 10 chickens.
 - Store chicken stats are randomized on generation.
