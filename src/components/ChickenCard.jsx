@@ -1,11 +1,13 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ChickenCard({ chicken, selected, onSelect }) {
   const speed = chicken?.stats?.speed ?? 0;
   const isSelectable = typeof onSelect === 'function';
   const classes = [
-    'w-full border-2 border-white/22 bg-[rgba(10,16,24,0.76)] px-[0.6rem] py-[0.6rem] text-left text-text-main transition-[border-color,box-shadow] duration-170',
-    selected ? 'border-[rgba(255,225,120,0.85)] shadow-[0_0_0_2px_rgba(255,205,94,0.2)]' : '',
+    'relative w-full border-2 border-white/22 bg-[rgba(10,16,24,0.76)] px-[0.6rem] py-[0.6rem] text-left text-text-main transition-[border-color,background-color,box-shadow] duration-150',
+    selected
+      ? 'border-[rgba(255,225,120,1)] bg-[rgba(58,44,6,0.85)] shadow-[0_0_0_2px_rgba(255,208,94,0.4),0_0_22px_rgba(255,200,80,0.2)]'
+      : 'hover:border-white/40',
     isSelectable ? 'cursor-pointer' : 'cursor-default',
     'max-[720px]:px-[0.55rem] max-[720px]:py-[0.55rem]',
   ].filter(Boolean).join(' ');
@@ -14,8 +16,10 @@ export default function ChickenCard({ chicken, selected, onSelect }) {
     <motion.button
       type="button"
       className={classes}
+      animate={selected ? { y: -3, scale: 1.015 } : { y: 0, scale: 1 }}
       whileHover={{ y: -2 }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: 'spring', stiffness: 340, damping: 22 }}
       onClick={() => {
         if (isSelectable) {
           onSelect(chicken.id);
@@ -23,8 +27,22 @@ export default function ChickenCard({ chicken, selected, onSelect }) {
       }}
       aria-pressed={isSelectable ? selected : undefined}
     >
+      <AnimatePresence>
+        {selected && isSelectable && (
+          <motion.span
+            className="absolute right-0 top-0 border-b border-l border-[rgba(255,225,120,0.85)] bg-[rgba(58,44,6,0.95)] px-[0.3rem] py-[0.08rem] text-[clamp(0.34rem,0.65vw,0.44rem)] text-[#ffe8aa]"
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 18 }}
+          >
+            ✓ PICK
+          </motion.span>
+        )}
+      </AnimatePresence>
+
       <div className="mb-[0.45rem] flex items-center justify-between gap-[0.6rem]">
-        <p className="text-[clamp(0.56rem,1.1vw,0.68rem)] text-text-main">{chicken.name}</p>
+        <p className={`text-[clamp(0.56rem,1.1vw,0.68rem)] transition-colors duration-150 ${selected ? 'text-[#ffe8aa]' : 'text-text-main'}`}>{chicken.name}</p>
         <p className="text-[clamp(0.5rem,1vw,0.62rem)] text-text-muted">SPD {Math.round(speed)}</p>
       </div>
 
