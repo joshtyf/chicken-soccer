@@ -42,7 +42,7 @@ export default function DashboardScreen({ onStartMatch, onOpenStore, balance = 0
 
       <div className="flex flex-wrap justify-center gap-[0.7rem]">
         <UiButton onClick={onOpenStore}>SHOP</UiButton>
-        <UiButton onClick={onStartMatch}>START MATCH</UiButton>
+        <UiButton onClick={onStartMatch}>PLAY</UiButton>
       </div>
     </ScreenLayout>
   );

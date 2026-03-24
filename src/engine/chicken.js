@@ -20,9 +20,55 @@ const STATE_DISTRACTED = 'distracted';
 const STATE_CELEBRATE = 'celebrate';
 const STATE_IDLE = 'idle';
 
+function getTerritoryBounds(team, role) {
+  const leftEdge = PITCH.x;
+  const rightEdge = PITCH.x + PITCH.w;
+
+  if (team === 'left') {
+    if (role === 'striker') {
+      return {
+        minX: PITCH.x + PITCH.w * 0.08,
+        maxX: PITCH.x + PITCH.w * 0.86,
+      };
+    }
+
+    if (role === 'defender') {
+      return {
+        minX: leftEdge,
+        maxX: PITCH.x + PITCH.w * 0.58,
+      };
+    }
+
+    return {
+      minX: leftEdge,
+      maxX: PITCH.x + PITCH.w * 0.75,
+    };
+  }
+
+  if (role === 'striker') {
+    return {
+      minX: PITCH.x + PITCH.w * 0.14,
+      maxX: PITCH.x + PITCH.w * 0.92,
+    };
+  }
+
+  if (role === 'defender') {
+    return {
+      minX: PITCH.x + PITCH.w * 0.42,
+      maxX: rightEdge,
+    };
+  }
+
+  return {
+    minX: PITCH.x + PITCH.w * 0.25,
+    maxX: rightEdge,
+  };
+}
+
 export class Chicken {
-  constructor(team, startX, startY, gameStats = {}) {
+  constructor(team, startX, startY, gameStats = {}, role = 'solo') {
     this.team = team;
+    this.role = role;
     this.homeX = startX;
     this.homeY = startY;
     this.x = startX;
@@ -42,8 +88,9 @@ export class Chicken {
         ? { x: RIGHT_GOAL.x + RIGHT_GOAL.w / 2, y: RIGHT_GOAL.y + RIGHT_GOAL.h / 2 }
         : { x: LEFT_GOAL.x + LEFT_GOAL.w / 2, y: LEFT_GOAL.y + LEFT_GOAL.h / 2 };
 
-    this.territoryMinX = team === 'left' ? PITCH.x : PITCH.x + PITCH.w * 0.25;
-    this.territoryMaxX = team === 'left' ? PITCH.x + PITCH.w * 0.75 : PITCH.x + PITCH.w;
+    const territoryBounds = getTerritoryBounds(team, role);
+    this.territoryMinX = territoryBounds.minX;
+    this.territoryMaxX = territoryBounds.maxX;
 
     this.speed = Number.isFinite(gameStats.speed) ? gameStats.speed : CHICKEN_SPEED;
     this.baseSpeed = this.speed;

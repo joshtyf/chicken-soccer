@@ -12,10 +12,31 @@ function getResult(scores) {
   return { text: 'DRAW!', className: '' };
 }
 
+function getTeamChickens(matchup, teamKey) {
+  if (Array.isArray(matchup?.[teamKey])) {
+    return matchup[teamKey];
+  }
+
+  if (teamKey === 'playerChickens' && matchup?.playerChicken) {
+    return [matchup.playerChicken];
+  }
+
+  if (teamKey === 'opponentChickens' && matchup?.opponentChicken) {
+    return [matchup.opponentChicken];
+  }
+
+  return [];
+}
+
+function formatTeamNames(chickens) {
+  if (!chickens || chickens.length === 0) return '---';
+  return chickens.map((chicken) => chicken.name).join(' + ');
+}
+
 export default function GameOverScreen({ scores, matchup, reward, onContinue }) {
   const result = getResult(scores);
-  const playerChicken = matchup?.playerChicken;
-  const opponentChicken = matchup?.opponentChicken;
+  const playerChickens = getTeamChickens(matchup, 'playerChickens');
+  const opponentChickens = getTeamChickens(matchup, 'opponentChickens');
 
   return (
     <ScreenLayout
@@ -49,7 +70,9 @@ export default function GameOverScreen({ scores, matchup, reward, onContinue }) 
       </motion.p>
 
       <p className="text-[clamp(0.58rem,1.2vw,0.75rem)] leading-[1.7] text-text-muted">
-        YOU: {playerChicken?.name || '---'} VS CPU: {opponentChicken?.name || '---'}
+        YOU: {formatTeamNames(playerChickens)}
+        <br />
+        CPU: {formatTeamNames(opponentChickens)}
       </p>
 
       {reward && (

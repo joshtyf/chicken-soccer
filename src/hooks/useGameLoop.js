@@ -5,30 +5,41 @@ import { WORLD_W, WORLD_H, PITCH, drawPitch, isInLeftGoal, isInRightGoal } from 
 import { Ball } from '../engine/ball';
 import { Chicken } from '../engine/chicken';
 import { FeedManager } from '../engine/feed';
-import { generateRandomOpponent, generateStarterChicken, resolveGameStats } from '../data/chickenModel';
+import {
+  generateRandomOpponents,
+  generateStarterChicken,
+  resolveGameStats,
+} from '../data/chickenModel';
+import { DEFAULT_GAME_MODE } from '../data/gameModeDefs';
 import { getFeedDef } from '../data/feedDefs';
 import { feedInventoryDB } from '../data/feedInventoryDB';
 
 const GAME_DURATION = 90;
 
-function resolveCircleOverlap(a, b) {
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
-  const minDistance = a.radius + b.radius;
+function getTeamSlots(team, teamSize) {
+  const centerY = PITCH.y + PITCH.h / 2;
 
-  if (distance >= minDistance || distance === 0) {
-    return;
+  if (teamSize <= 1) {
+    return [
+      {
+        role: 'solo',
+        x: team === 'left' ? PITCH.x + 40 : PITCH.x + PITCH.w - 40,
+        y: centerY,
+      },
+    ];
   }
 
-  const overlap = (minDistance - distance) / 2;
-  const nx = dx / distance;
-  const ny = dy / distance;
+  if (team === 'left') {
+    return [
+      { role: 'striker', x: PITCH.x + 60, y: centerY - 14 },
+      { role: 'defender', x: PITCH.x + 25, y: centerY + 14 },
+    ];
+  }
 
-  a.x -= nx * overlap;
-  a.y -= ny * overlap;
-  b.x += nx * overlap;
-  b.y += ny * overlap;
+  return [
+    { role: 'striker', x: PITCH.x + PITCH.w - 60, y: centerY - 14 },
+    { role: 'defender', x: PITCH.x + PITCH.w - 25, y: centerY + 14 },
+  ];
 }
 
 export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, onQuit } = {}) {
@@ -37,18 +48,28 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
   const [displayTime, setDisplayTime] = useState(GAME_DURATION);
   const [goalMessage, setGoalMessage] = useState('');
   const [ballTouched, setBallTouched] = useState(false);
-  const [matchup, setMatchup] = useState(selectedMatchup || { playerChicken: null, opponentChicken: null });
+  const [matchup, setMatchup] = useState(
+    selectedMatchup || {
+      playerChickens: [],
+      opponentChickens: [],
+      gameMode: DEFAULT_GAME_MODE,
+    }
+  );
   const [selectedFeedType, setSelectedFeedType] = useState('basic');
   const [feedCounts, setFeedCounts] = useState({ slowness: 0 });
   const lastDisplayedSecond = useRef(GAME_DURATION);
 
   const gameState = useRef({
     ball: new Ball(),
-    chickenLeft: new Chicken('left', PITCH.x + 40, PITCH.y + PITCH.h / 2),
-    chickenRight: new Chicken('right', PITCH.x + PITCH.w - 40, PITCH.y + PITCH.h / 2),
+    playerChickens: [],
+    opponentChickens: [],
+    allChickens: [],
     feedManager: new FeedManager(),
-    playerChicken: null,
-    opponentChicken: null,
+    matchup: {
+      playerChickens: [],
+      opponentChickens: [],
+      gameMode: DEFAULT_GAME_MODE,
+    },
     scoreLeft: 0,
     scoreRight: 0,
     gameTime: GAME_DURATION,
@@ -66,34 +87,58 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
   const setupMatchup = useCallback((nextMatchup) => {
     const s = gameState.current;
 
-    const playerChicken = nextMatchup?.playerChicken || generateStarterChicken();
-    const opponentChicken = nextMatchup?.opponentChicken || generateRandomOpponent();
+    const inputPlayerChickens = Array.isArray(nextMatchup?.playerChickens)
+      ? nextMatchup.playerChickens.filter(Boolean)
+      : [];
+    const inputOpponentChickens = Array.isArray(nextMatchup?.opponentChickens)
+      ? nextMatchup.opponentChickens.filter(Boolean)
+      : [];
 
-    s.playerChicken = playerChicken;
-    s.opponentChicken = opponentChicken;
+    const configuredTeamSize = Number(nextMatchup?.gameMode?.chickensPerTeam);
+    const inferredTeamSize = inputPlayerChickens.length || inputOpponentChickens.length || 1;
+    const teamSize = Math.max(1, configuredTeamSize || inferredTeamSize);
 
-    s.chickenLeft = new Chicken(
-      'left',
-      PITCH.x + 40,
-      PITCH.y + PITCH.h / 2,
-      resolveGameStats(playerChicken)
-    );
+    const playerChickens = [...inputPlayerChickens];
+    while (playerChickens.length < teamSize) {
+      playerChickens.push(generateStarterChicken());
+    }
 
-    s.chickenRight = new Chicken(
-      'right',
-      PITCH.x + PITCH.w - 40,
-      PITCH.y + PITCH.h / 2,
-      resolveGameStats(opponentChicken)
-    );
+    const opponentChickens = [...inputOpponentChickens];
+    if (opponentChickens.length < teamSize) {
+      opponentChickens.push(...generateRandomOpponents(teamSize - opponentChickens.length));
+    }
 
-    setMatchup({ playerChicken, opponentChicken });
+    const normalizedMatchup = {
+      playerChickens: playerChickens.slice(0, teamSize),
+      opponentChickens: opponentChickens.slice(0, teamSize),
+      gameMode: nextMatchup?.gameMode || DEFAULT_GAME_MODE,
+    };
+
+    const leftSlots = getTeamSlots('left', teamSize);
+    const rightSlots = getTeamSlots('right', teamSize);
+
+    s.playerChickens = normalizedMatchup.playerChickens.map((chicken, index) => {
+      const slot = leftSlots[index] || leftSlots[leftSlots.length - 1];
+      return new Chicken('left', slot.x, slot.y, resolveGameStats(chicken), slot.role);
+    });
+
+    s.opponentChickens = normalizedMatchup.opponentChickens.map((chicken, index) => {
+      const slot = rightSlots[index] || rightSlots[rightSlots.length - 1];
+      return new Chicken('right', slot.x, slot.y, resolveGameStats(chicken), slot.role);
+    });
+
+    s.allChickens = [...s.playerChickens, ...s.opponentChickens];
+    s.matchup = normalizedMatchup;
+
+    setMatchup(normalizedMatchup);
   }, []);
 
   const resetAfterGoal = useCallback(() => {
     const s = gameState.current;
     s.ball.reset();
-    s.chickenLeft.resetPosition();
-    s.chickenRight.resetPosition();
+    for (const chicken of s.allChickens) {
+      chicken.resetPosition();
+    }
     s.feedManager.reset();
     s.ballTouched = false;
     setBallTouched(false);
@@ -111,8 +156,9 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
     s.goalMessage = '';
     s.feedManager.reset();
     s.ball.reset();
-    s.chickenLeft.resetPosition();
-    s.chickenRight.resetPosition();
+    for (const chicken of s.allChickens) {
+      chicken.resetPosition();
+    }
     s.selectedFeedType = 'basic';
     s.feedCounts = { slowness: slownessCount };
     s.ballTouched = false;
@@ -267,10 +313,7 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
           setDisplayTime(0);
           onMatchEnd?.({
             scores: { left: s.scoreLeft, right: s.scoreRight },
-            matchup: {
-              playerChicken: s.playerChicken,
-              opponentChicken: s.opponentChicken,
-            },
+            matchup: s.matchup,
           });
           return;
         }
@@ -288,8 +331,9 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
       if (s.phase !== 'playing') return;
 
       s.ball.update(dt);
-      s.chickenLeft.update(dt, s.ball, s.feedManager);
-      s.chickenRight.update(dt, s.ball, s.feedManager);
+      for (const chicken of s.allChickens) {
+        chicken.update(dt, s.ball, s.feedManager);
+      }
       if (s.ball.wasKicked && !s.ballTouched) {
         s.ballTouched = true;
         setBallTouched(true);
@@ -302,7 +346,9 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
         s.goalMessage = 'BLUE SCORES!';
         s.phase = 'goal';
         s.goalTimer = 2;
-        s.chickenRight.celebrate();
+        for (const chicken of s.opponentChickens) {
+          chicken.celebrate();
+        }
         setScores({ left: s.scoreLeft, right: s.scoreRight });
         setGoalMessage(s.goalMessage);
         setPhase('goal');
@@ -311,14 +357,13 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
         s.goalMessage = 'RED SCORES!';
         s.phase = 'goal';
         s.goalTimer = 2;
-        s.chickenLeft.celebrate();
+        for (const chicken of s.playerChickens) {
+          chicken.celebrate();
+        }
         setScores({ left: s.scoreLeft, right: s.scoreRight });
         setGoalMessage(s.goalMessage);
         setPhase('goal');
       }
-
-      // Keep chickens from stacking on each other while contesting the ball.
-      resolveCircleOverlap(s.chickenLeft, s.chickenRight);
     }
 
     function draw(ctx, s) {
@@ -326,8 +371,9 @@ export function useGameLoop(canvasRef, { matchup: selectedMatchup, onMatchEnd, o
       drawPitch(ctx);
       s.feedManager.draw(ctx);
       s.ball.draw(ctx);
-      s.chickenLeft.draw(ctx);
-      s.chickenRight.draw(ctx);
+      for (const chicken of s.allChickens) {
+        chicken.draw(ctx);
+      }
     }
 
     function loop(timestamp) {

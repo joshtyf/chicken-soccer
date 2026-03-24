@@ -1,23 +1,25 @@
 # Chicken Soccer
 
-A fast-paced 1v1 chicken soccer game built with React and Canvas 2D.
+A fast-paced chicken soccer game built with React and Canvas 2D.
 
-The first screen is your dashboard, where you see your chicken collection and their stats. Start a match to pick your chicken, then play against a random AI opponent. You influence the match by throwing chicken feed to distract the opponent. Each chicken brings its stats into the match.
+The first screen is your dashboard, where you see your chicken collection and their stats. Press PLAY to choose a game mode, then pick the required number of chickens for that mode. You influence the match by throwing chicken feed to distract opponents. Each chicken brings its stats into the match.
 
 The game now includes a daily chicken store and an in-game currency called Pok Pok (PP). You can earn PP from matches, then spend it to buy and name new chickens for your collection.
 
 ## How To Play
 
 1. View your chicken collection on the dashboard.
-2. Click "Start Match" to go to the pre-match screen.
-3. Select your chicken and confirm to start the match.
-4. Wait for the first ball touch, then click or tap on the pitch to throw feed.
-5. Press `1` for basic feed (unlimited).
-6. Press `2` for slowness feed (limited inventory).
-7. Nearby chickens may abandon the ball to chase feed.
-8. Use feed placement strategically to open scoring chances.
-9. Score more goals before the 90-second timer ends.
-10. Use the shop from the dashboard to buy new chickens with PP.
+2. Click "PLAY" to open game mode selection.
+3. Select either 1v1 or 2v2.
+4. Pick the required number of chickens and confirm to start.
+5. In 2v2, you need at least 2 chickens in your collection.
+6. Wait for the first ball touch, then click or tap on the pitch to throw feed.
+7. Press `1` for basic feed (unlimited).
+8. Press `2` for slowness feed (limited inventory).
+9. Nearby chickens may abandon the ball to chase feed.
+10. Use feed placement strategically to open scoring chances.
+11. Score more goals before the 90-second timer ends.
+12. Use the shop from the dashboard to buy new chickens with PP.
 
 ## Economy and Rewards
 
@@ -162,7 +164,11 @@ npm run preview
 ## Game Mechanics
 
 - Match length: 90 seconds
-- Teams: your selected red chicken vs a randomly generated blue chicken
+- Game modes:
+  - 1v1: your selected red chicken vs a randomly generated blue chicken
+  - 2v2: two selected red chickens vs two randomly generated blue chickens
+- 2v2 formation: each team spawns with striker + defender positions
+- Chickens currently pass through each other (no chicken-chicken collision)
 - Economy:
   - Win bonus: random 0-50 PP (wins only)
   - Goal bonus: 5 PP per player goal

@@ -6,6 +6,27 @@ function formatTime(totalSeconds) {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function getTeamChickens(matchup, teamKey) {
+  if (Array.isArray(matchup?.[teamKey])) {
+    return matchup[teamKey];
+  }
+
+  if (teamKey === 'playerChickens' && matchup?.playerChicken) {
+    return [matchup.playerChicken];
+  }
+
+  if (teamKey === 'opponentChickens' && matchup?.opponentChicken) {
+    return [matchup.opponentChicken];
+  }
+
+  return [];
+}
+
+function formatChickenLine(chicken) {
+  if (!chicken) return '---';
+  return `${chicken.name} (SPD ${Math.round(chicken?.stats?.speed || 0)})`;
+}
+
 export default function GameHUD({
   scores,
   displayTime,
@@ -13,8 +34,8 @@ export default function GameHUD({
   ballTouched,
   onPause,
 }) {
-  const playerChicken = matchup?.playerChicken;
-  const opponentChicken = matchup?.opponentChicken;
+  const playerChickens = getTeamChickens(matchup, 'playerChickens');
+  const opponentChickens = getTeamChickens(matchup, 'opponentChickens');
 
   return (
     <motion.div
@@ -70,13 +91,21 @@ export default function GameHUD({
 
       <div className="absolute right-0 bottom-[0.6rem] left-0 flex justify-center">
         <div className="hud-strip grid min-h-[2.2rem] grid-cols-[1fr_auto_1fr] items-center gap-[0.5rem] px-[0.65rem] py-[0.45rem] max-[720px]:grid-cols-1 max-[720px]:gap-[0.25rem] max-[720px]:p-[0.45rem] max-[720px]:text-center">
-          <p className="text-[clamp(0.42rem,0.8vw,0.56rem)] leading-[1.4] text-red-team max-[720px]:text-center">
-            YOU: {playerChicken?.name || '---'} (SPD {Math.round(playerChicken?.stats?.speed || 0)})
-          </p>
+          <div className="grid gap-[0.15rem] text-[clamp(0.42rem,0.8vw,0.56rem)] leading-[1.4] text-red-team max-[720px]:text-center">
+            <p>YOU:</p>
+            {playerChickens.length === 0 && <p>---</p>}
+            {playerChickens.map((chicken) => (
+              <p key={chicken.id}>{formatChickenLine(chicken)}</p>
+            ))}
+          </div>
           <p className="text-center text-[clamp(0.5rem,1vw,0.65rem)] text-text-main">VS</p>
-          <p className="text-[clamp(0.42rem,0.8vw,0.56rem)] leading-[1.4] text-blue-team max-[720px]:text-center">
-            CPU: {opponentChicken?.name || '---'} (SPD {Math.round(opponentChicken?.stats?.speed || 0)})
-          </p>
+          <div className="grid gap-[0.15rem] text-[clamp(0.42rem,0.8vw,0.56rem)] leading-[1.4] text-blue-team max-[720px]:text-center">
+            <p>CPU:</p>
+            {opponentChickens.length === 0 && <p>---</p>}
+            {opponentChickens.map((chicken) => (
+              <p key={chicken.id}>{formatChickenLine(chicken)}</p>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>

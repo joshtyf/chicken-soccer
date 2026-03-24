@@ -57,6 +57,11 @@ export function generateRandomOpponent() {
   });
 }
 
+export function generateRandomOpponents(count = 1) {
+  const safeCount = Math.max(1, Math.floor(Number(count) || 1));
+  return Array.from({ length: safeCount }, () => generateRandomOpponent());
+}
+
 export function resolveGameStats(chicken) {
   return resolveStatsForGame(chicken?.stats);
 }
