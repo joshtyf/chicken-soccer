@@ -1,13 +1,20 @@
 # Dependencies
 node_modules/
+web/node_modules/
 
 # Build output
 dist/
+web/dist/
+server/bin/
 
 # Environment/local overrides
 .env
 .env.*
 *.local
+
+# Runtime server data
+server/data/players/
+!server/data/.gitkeep
 
 # OS / editor artifacts
 .DS_Store

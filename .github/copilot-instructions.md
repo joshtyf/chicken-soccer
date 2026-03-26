@@ -1,103 +1,71 @@
 # Chicken Soccer — Project Guidelines
 
 ## Overview
-A 1v1 web-based chicken soccer game. Two AI-controlled chickens play soccer on a pitch. Players do not control the chickens directly. Instead, they throw chicken feed onto the pitch to distract the opposing chicken, choose a chicken from their own collection before kickoff, and bring that chicken's stats into the match. The goal is to score more goals than the opponent.
+Chicken Soccer is now a server-authoritative monorepo with a Go backend and React frontend. The backend owns player identity, balance, chicken collection, feed inventory, daily shop state, and real-time match simulation over WebSocket.
 
 ## Tech Stack
-- **Frontend**: React 19 + Vite
-- **Rendering**: HTML5 Canvas 2D (via React ref + custom hook)
-- **Art Style**: Pixelated / retro pixel-art theme (use `image-rendering: pixelated`, chunky pixels, pixel fonts)
-- **Build**: Vite dev server (`npm run dev`) and production build (`npm run build`)
+- Frontend: React 19 + Vite 8 in web
+- Backend: Go 1.22+ in server (net/http + gorilla/websocket)
+- Rendering: Canvas 2D pixel-art presentation
+- Storage: JSON and JSONL files under server/data
 
-## Architecture
+## Monorepo Structure
 ```
-index.html                    — Vite entry point
-vite.config.js                — Vite + React plugin config
-src/
-  main.jsx                    — React root mount
-  App.jsx                     — Screen state machine (SCREENS constant + handlers)
-  index.css                   — Pixelated theme, retro styling
-  components/
-    — Shared UI primitives (compose into screens and overlays)
-    UiButton.jsx              — motion.button with standard hover/tap scales; accepts className append
-    ScreenLayout.jsx          — Two-layer screen-page + overlay-panel motion wrapper; panelMotion override
-    AnimatedTitle.jsx         — Letter-by-letter spring title; words[], ariaLabel, delayStep, duration props
-    ChickenList.jsx           — Chicken picker section (section + picker-title + ChickenCard grid)
-    StoreListingCard.jsx      — Single store listing tile (ChickenCard + price + BUY button)
-    — Screens
-    DashboardScreen.jsx       — Dashboard: chicken collection, start match
-    PreMatchScreen.jsx        — Pre-match: select chicken, confirm
-    GameCanvas.jsx            — Canvas element with ref, renders the game
-    GameOverScreen.jsx        — End-of-match result and reward summary
-    StoreScreen.jsx           — Daily store: listing grid, purchase flow (state via useShop)
-    — Overlays
-    GameHUD.jsx               — Score, timer, and current matchup metadata
-    GoalOverlay.jsx           — Goal announcement overlay
-    PauseOverlay.jsx          — Pause overlay
-    NamingModal.jsx           — Purchase naming modal (AnimatePresence + controlled input)
-    ChickenCard.jsx           — Selectable chicken card for collection and store UI
+web/
+  src/
+    App.jsx
+    services/
+      auth.js
+      api.js
+      wsClient.js
+    components/
+    hooks/
+    engine/
+    data/
+
+server/
+  cmd/server/main.go
+  internal/
+    api/
+    game/
+    match/
+    model/
+    store/
+    ws/
   data/
-    statDefs.js               — Stat metadata, sanitization, and game-value mapping
-    chickenModel.js           — Chicken factories, normalization, and opponent generation
-    chickenDB.js              — localStorage-backed JSONL persistence layer
-    playerDB.js               — Player balance persistence
-    rewardLogic.js            — Match reward calculation (pure functions)
-    shopLogic.js              — Daily shop generation and purchase logic (seeded RNG)
-  hooks/
-    useGameLoop.js            — requestAnimationFrame loop, state, input, rendering
-    useShop.js                — Store state and purchase actions (extracted from StoreScreen)
-  engine/
-    pitch.js                  — Pitch rendering, goal detection, world constants
-    ball.js                   — Soccer ball physics
-    chicken.js                — Chicken AI: movement, feed distraction, pixel-art sprite, injected game stats
-    feed.js                   — Chicken feed: placement, attraction radius, decay
-    utils.js                  — Collision detection, vector math helpers
+    players/
 ```
 
-## Game Mechanics
-- The first screen is your dashboard, showing your chicken collection and stats
-- Click "Start Match" to go to the pre-match screen
-- Select your chicken and confirm to start a match against a random opponent
-- Chickens move autonomously toward the ball using simple AI
-- Players click/tap to throw feed onto the pitch
-- Feed has an attraction radius — nearby chickens are pulled toward it
-- Feed decays after a few seconds
-- Chickens resume chasing the ball once feed is consumed or expires
-- Goals scored when the ball enters either goal area
-- Each chicken has a stats object; currently only `speed` is implemented on a `0-100` scale
-- The selected player chicken and a randomly generated opponent are resolved into engine-ready stats at match start
-- Player collection data is stored client-side as JSONL in `localStorage`
+## Architecture Rules
+- Server-authoritative gameplay: all physics, AI, goals, and rewards are computed on the backend.
+- Client is a thin API/WebSocket consumer that renders snapshots and sends player input.
+- No frontend localStorage game databases for balance, collection, feed inventory, shop listings, or rewards.
+- Frontend keeps only the guest auth token in localStorage.
+- WebSocket disconnect cancels the match and returns to dashboard behavior on the client.
 
-## Code Conventions
-- ES modules with JSX for React components
-- Domain and persistence logic lives in `src/data/`
-- Game engine logic lives in `src/engine/` as plain JS classes (no React dependency)
-- React integration via a custom `useGameLoop` hook that owns the canvas ref and animation frame
-- Use `requestAnimationFrame` with delta-time for the game loop
-- All positions in world coordinates; canvas scales to fit viewport
-- Use AABB or circle-based collision detection
-- Pixel-art assets rendered at low resolution (320×180), scaled up with nearest-neighbor interpolation
-- New stats should be added by extending `src/data/statDefs.js` first, then resolved into runtime values rather than hardcoding behavior in the UI
-- **Shared UI primitives**: prefer composing `UiButton`, `ScreenLayout`, `AnimatedTitle`, and `ChickenList` rather than repeating raw `motion.*` boilerplate in screen components
-- **Custom hooks for screen state**: extract multi-`useState` + side-effect bundles into a dedicated hook in `src/hooks/` (e.g. `useShop`) to keep screen components focused on rendering
-- **Screen routing constants**: add new screens to the `SCREENS` object in `App.jsx` rather than using raw string literals
+## Frontend Conventions
+- Keep shared display constants in web/src/data (statDefs, feedDefs, gameModeDefs).
+- Put API and auth logic in web/src/services.
+- Keep screen components focused on rendering; async data and side effects belong in hooks/services.
+- Canvas hook reads server snapshots and interpolates render positions.
 
-## Key Design Decisions
-- No external game dependencies — pure Canvas 2D rendering, React for component structure
-- Pixelated aesthetic: all rendering at a low internal resolution (320×180), scaled up to fill screen
-- Chickens are drawn programmatically (sprite-style pixel art on canvas), not loaded from image files
-- Feed placement is the only player interaction — keep input handling minimal
-- Chicken collection persistence is deliberately isolated behind a small database abstraction for future backend migration
-- Stat conversion is centralized so training and additional stats can be layered on without reshaping the core loop
+## Backend Conventions
+- internal/api: parse/validate requests and shape responses.
+- internal/store: all JSON/JSONL persistence and per-player concurrency locking.
+- internal/game: pure simulation/session lifecycle and reward computation.
+- internal/ws: connection handling and protocol transport.
 
 ## Development
 ```bash
-npm install     # install dependencies
-npm run dev     # start Vite dev server
-npm run build   # production build
+make dev       # run backend + frontend
+make server    # run Go backend
+make web       # run Vite frontend
+
+cd server && go test ./...
+cd web && npm run build
 ```
 
 ## Skills
-- See `.github/skills/game-engine/` for game development patterns and references
-- See `.github/skills/premium-frontend-ui/` for immersive frontend UI craftsmanship patterns
-- See `.github/skills/frontend-patterns/` for React component composition, custom hooks, and state management patterns
+- See .github/skills/go-backend for backend package conventions.
+- See .github/skills/golang-patterns for idiomatic Go guidance.
+- See .github/skills/frontend-patterns for React and hook composition patterns.
