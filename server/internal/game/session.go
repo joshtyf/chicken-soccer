@@ -27,30 +27,30 @@ type Matchup struct {
 }
 
 type Session struct {
-	mu          sync.Mutex
-	ID          string
-	PlayerID    string
-	Matchup     Matchup
-	Ball        BallState
-	BallTouched bool
-	Chickens    []ChickenState
-	Feed        []FeedItem
-	FeedInv     map[string]int
-	FeedUsed    map[string]int
+	mu           sync.Mutex
+	ID           string
+	PlayerID     string
+	Matchup      Matchup
+	Ball         BallState
+	BallTouched  bool
+	Chickens     []ChickenState
+	Feed         []FeedItem
+	FeedInv      map[string]int
+	FeedUsed     map[string]int
 	SelectedFeed string
-	LeftScore   int
-	RightScore  int
-	TimeLeft    float64
-	Phase       string
-	GoalTimer   float64
-	conn        *websocket.Conn
-	closed      bool
-	quit        chan struct{}
-	inputQueue  chan ClientInput
-	lastFeedAt  time.Time
-	playerStore *store.PlayerStore
-	feedStore   *store.FeedStore
-	rng         *rand.Rand
+	LeftScore    int
+	RightScore   int
+	TimeLeft     float64
+	Phase        string
+	GoalTimer    float64
+	conn         *websocket.Conn
+	closed       bool
+	quit         chan struct{}
+	inputQueue   chan ClientInput
+	lastFeedAt   time.Time
+	playerStore  *store.PlayerStore
+	feedStore    *store.FeedStore
+	rng          *rand.Rand
 }
 
 type Registry struct {

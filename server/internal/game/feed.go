@@ -12,8 +12,8 @@ type FeedItem struct {
 }
 
 const (
-	FeedLifetime       = 4.0
-	FeedAttractRadius  = 30.0
-	MaxFeedPerPlayer   = 5
-	FeedPlaceCooldown  = 200 * time.Millisecond
+	FeedLifetime      = 4.0
+	FeedAttractRadius = 30.0
+	MaxFeedPerPlayer  = 5
+	FeedPlaceCooldown = 200 * time.Millisecond
 )
