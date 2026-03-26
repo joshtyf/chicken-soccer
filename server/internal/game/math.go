@@ -21,3 +21,8 @@ func Clamp(v, minV, maxV float64) float64 {
 func AngleBetween(ax, ay, bx, by float64) float64 {
 	return math.Atan2(by-ay, bx-ax)
 }
+
+func LerpAngle(a, b, t float64) float64 {
+	diff := math.Atan2(math.Sin(b-a), math.Cos(b-a))
+	return a + diff*t
+}

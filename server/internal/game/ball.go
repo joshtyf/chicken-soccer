@@ -28,8 +28,9 @@ func (b *BallState) Kick(angle, power float64) {
 }
 
 func (b *BallState) Update(dt float64) {
-	b.VX *= 0.98
-	b.VY *= 0.98
+	friction := math.Pow(0.98, dt*60)
+	b.VX *= friction
+	b.VY *= friction
 	if math.Abs(b.VX) < 0.01 {
 		b.VX = 0
 	}

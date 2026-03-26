@@ -24,6 +24,7 @@ type ChickenState struct {
 	HomeX          float64            `json:"-"`
 	HomeY          float64            `json:"-"`
 	Appetite       float64            `json:"appetiteCooldown"`
+	KickCooldown   float64            `json:"-"`
 }
 
 func slots(team string, size int) [][2]float64 {
@@ -85,6 +86,12 @@ func UpdateChicken(c *ChickenState, dt float64, ball *BallState, nearest *FeedIt
 			c.Appetite = 0
 		}
 	}
+	if c.KickCooldown > 0 {
+		c.KickCooldown -= dt
+		if c.KickCooldown < 0 {
+			c.KickCooldown = 0
+		}
+	}
 	effectiveSpeed := c.BaseSpeed * c.SlowMultiplier
 	tx, ty := ball.X, ball.Y
 	if nearest != nil && c.Appetite <= 0 {
@@ -98,15 +105,17 @@ func UpdateChicken(c *ChickenState, dt float64, ball *BallState, nearest *FeedIt
 	c.X = Clamp(c.X, PitchX+5, PitchX+PitchW-5)
 	c.Y = Clamp(c.Y, PitchY+5, PitchY+PitchH-5)
 
-	if Dist(c.X, c.Y, ball.X, ball.Y) < 8 {
-		kickAngle := AngleBetween(c.X, c.Y, ball.X, ball.Y)
+	if Dist(c.X, c.Y, ball.X, ball.Y) < 8 && c.KickCooldown <= 0 {
+		opponentGoalX := PitchX - GoalW/2
 		if c.Team == "left" {
-			kickAngle = AngleBetween(c.X, c.Y, PitchX+PitchW+GoalW, PitchY+PitchH/2)
-		} else {
-			kickAngle = AngleBetween(c.X, c.Y, PitchX-GoalW, PitchY+PitchH/2)
+			opponentGoalX = PitchX + PitchW + GoalW/2
 		}
+		chickenToBall := AngleBetween(c.X, c.Y, ball.X, ball.Y)
+		ballToGoal := AngleBetween(ball.X, ball.Y, opponentGoalX, PitchY+PitchH/2)
+		kickAngle := LerpAngle(chickenToBall, ballToGoal, 0.6)
 		kickAngle += rng.Float64()*0.6 - 0.3
 		ball.Kick(kickAngle, 2.5)
+		c.KickCooldown = 0.15
 	}
 }
 
