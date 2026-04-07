@@ -23,7 +23,26 @@ func (c *ChickenStore) GetAll(playerID string) ([]model.Chicken, error) {
 	m := c.store.lockForPlayer(playerID)
 	m.Lock()
 	defer m.Unlock()
-	return readJSONL[model.Chicken](c.file(playerID))
+	items, err := readJSONL[model.Chicken](c.file(playerID))
+	if err != nil {
+		return nil, err
+	}
+
+	changed := false
+	for i := range items {
+		if items[i].Appearance.BodyColor == "" {
+			items[i].Appearance = model.DefaultAppearance(items[i].ID)
+			changed = true
+		}
+	}
+
+	if changed {
+		if err := writeJSONL(c.file(playerID), items); err != nil {
+			return nil, err
+		}
+	}
+
+	return items, nil
 }
 
 func (c *ChickenStore) GetByID(playerID, chickenID string) (*model.Chicken, error) {
@@ -84,6 +103,18 @@ func (c *ChickenStore) Init(playerID string) ([]model.Chicken, error) {
 		return nil, err
 	}
 	if len(items) > 0 {
+		changed := false
+		for i := range items {
+			if items[i].Appearance.BodyColor == "" {
+				items[i].Appearance = model.DefaultAppearance(items[i].ID)
+				changed = true
+			}
+		}
+		if changed {
+			if err := writeJSONL(c.file(playerID), items); err != nil {
+				return nil, err
+			}
+		}
 		return items, nil
 	}
 	rng := rand.New(rand.NewSource(time.Now().UnixNano()))

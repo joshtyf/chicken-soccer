@@ -104,3 +104,4 @@ cd web && npm run build
 - Frontend stores only the guest auth token in localStorage.
 - Match simulation, rewards, and feed inventory validation are server-side.
 - Player data persists on disk under server/data/players.
+- Chicken records now include appearance metadata (currently `appearance.bodyColor`) used by UI cards.

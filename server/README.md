@@ -36,3 +36,5 @@ data/players/{playerId}/
   feed_inventory.json
   shop/{dateKey}.json
 ```
+
+`chickens.jsonl` entries include `appearance.bodyColor` for card previews.

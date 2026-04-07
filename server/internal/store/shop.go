@@ -15,6 +15,7 @@ type ShopListing struct {
 	ID            string             `json:"id"`
 	GeneratedName string             `json:"generatedName"`
 	Stats         map[string]float64 `json:"stats"`
+	Appearance    model.Appearance   `json:"appearance"`
 	Price         int                `json:"price"`
 }
 
@@ -36,6 +37,18 @@ func (s *ShopStore) GetDailyShop(playerID, dateKey string) (*ShopState, error) {
 	if err := readJSON(s.file(playerID, dateKey), &state); err != nil {
 		return nil, err
 	}
+	changed := false
+	for i := range state.Listings {
+		if state.Listings[i].Appearance.BodyColor == "" {
+			state.Listings[i].Appearance = model.DefaultAppearance(state.Listings[i].ID)
+			changed = true
+		}
+	}
+	if changed {
+		if err := writeJSON(s.file(playerID, dateKey), state); err != nil {
+			return nil, err
+		}
+	}
 	return &state, nil
 }
 
@@ -51,13 +64,15 @@ func GenerateDailyShop(dateKey string, seed uint32) ShopState {
 	count := randomInt(rng, 3, 10)
 	raw := make([]ShopListing, 0, count)
 	for i := 0; i < count; i++ {
+		listingID := dateKey + "-" + itoa(i) + "-" + itoa(randomInt(rng, 0, 999999))
 		stats := map[string]float64{
 			"speed": float64(randomInt(rng, 0, 100)),
 		}
 		raw = append(raw, ShopListing{
-			ID:            dateKey + "-" + itoa(i) + "-" + itoa(randomInt(rng, 0, 999999)),
+			ID:            listingID,
 			GeneratedName: randomShopName(rng),
 			Stats:         stats,
+			Appearance:    model.Appearance{BodyColor: model.BodyColorPalette[randomInt(rng, 0, len(model.BodyColorPalette)-1)]},
 		})
 	}
 	return ShopState{DateKey: dateKey, Listings: priceByStrength(raw)}
@@ -154,5 +169,9 @@ func itoa(v int) string {
 }
 
 func ToChicken(id, name string, listing ShopListing) model.Chicken {
-	return model.Chicken{ID: id, Name: name, Stats: model.SanitizeStats(listing.Stats)}
+	appearance := listing.Appearance
+	if appearance.BodyColor == "" {
+		appearance = model.DefaultAppearance(id)
+	}
+	return model.Chicken{ID: id, Name: name, Stats: model.SanitizeStats(listing.Stats), Appearance: appearance}
 }

@@ -9,6 +9,7 @@ export default function StoreListingCard({ listing, canAfford, onBuy }) {
           id: listing.id,
           name: listing.generatedName,
           stats: listing.stats,
+          appearance: listing.appearance,
         }}
         selected={false}
       />
